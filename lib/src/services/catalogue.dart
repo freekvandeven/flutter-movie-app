@@ -32,6 +32,59 @@ class MockedMovieCatalogueService extends StateNotifier<List<Movie>>
           ),
         ],
         rating: 8.0,
+        popular: false,
+        upcoming: true,
+      ),
+      const Movie(
+        title: 'Tomb Raider',
+        description: '',
+        image: 'assets/images/movies',
+        video: 'assets/video',
+        duration: 7400,
+        year: 2022,
+        genres: [
+          'Adventure',
+          'Fantastic',
+        ],
+        actors: [
+          const ActorInMovie(role: 'Newt Scamander', name: 'Eddie Redmayne'),
+          const ActorInMovie(role: 'Albus Dumbledore', name: 'Jude Law')
+        ],
+        rating: 7.8,
+        popular: true,
+        upcoming: false,
+      ),
+      const Movie(
+        title: 'Morbius',
+        description: 'It\'s morbing time',
+        image: 'assets/images/movies',
+        video: 'assets/video',
+        duration: 7400,
+        year: 2022,
+        genres: ['Fantastic', 'Thriller'],
+        actors: [
+          const ActorInMovie(role: 'Newt Scamander', name: 'Eddie Redmayne'),
+          const ActorInMovie(role: 'Albus Dumbledore', name: 'Jude Law')
+        ],
+        rating: 6.7,
+        popular: true,
+        upcoming: false,
+      ),
+      const Movie(
+        title: 'Jungle cruise',
+        description: '',
+        image: '',
+        video: '',
+        duration: 7400,
+        year: 2022,
+        genres: [
+          'Adventure',
+          'Fantastic',
+        ],
+        actors: [],
+        rating: 7.1,
+        popular: true,
+        upcoming: false,
       ),
     ];
   }

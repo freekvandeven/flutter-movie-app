@@ -22,6 +22,8 @@ class Movie {
     required this.genres,
     required this.actors,
     required this.rating,
+    required this.popular,
+    required this.upcoming,
   });
   final String title;
   final String description;
@@ -32,4 +34,6 @@ class Movie {
   final List<String> genres;
   final List<ActorInMovie> actors;
   final double rating;
+  final bool popular;
+  final bool upcoming;
 }

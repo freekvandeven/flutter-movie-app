@@ -1,17 +1,8 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:convert';
 
-class MovieUserSettings {
-  const MovieUserSettings({
-    required this.title,
-    required this.favorite,
-    required this.timeWatched,
-    required this.selected,
-  });
-  final String title;
-  final bool favorite;
-  final int timeWatched;
-  final bool selected;
-}
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:movie_viewing_app/src/models/movie_settings.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class MovieService extends StateNotifier<List<MovieUserSettings>> {
   MovieService._() : super([]);
@@ -23,15 +14,33 @@ abstract class MovieService extends StateNotifier<List<MovieUserSettings>> {
 class LocalMovieService extends StateNotifier<List<MovieUserSettings>>
     implements MovieService {
   LocalMovieService() : super([]);
+
+  static final String movieUserSettingsKey = 'movie_user_settings';
+
   @override
   Future<void> fetchMovieUserSettings() async {
     // get data from local storage
+    var prefs = await SharedPreferences.getInstance();
+    var json = prefs.getString(movieUserSettingsKey);
+    if (json == null) {
+      return;
+    }
+    var settings = (jsonDecode(json) as List)
+        .map((e) => MovieUserSettings.fromJson(e as Map<String, dynamic>))
+        .toList();
+    state = settings;
   }
 
   @override
   Future<void> updateMovieUserSettings(MovieUserSettings settings) async {
-    state = state
-        .map((movie) => movie.title == settings.title ? settings : movie)
-        .toList();
+    state = state.map((e) {
+      if (e.title == settings.title) {
+        return settings;
+      }
+      return e;
+    }).toList();
+    var prefs = await SharedPreferences.getInstance();
+    var json = jsonEncode(state.map((e) => e.toJson()).toList());
+    await prefs.setString(movieUserSettingsKey, json);
   }
 }

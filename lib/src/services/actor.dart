@@ -11,5 +11,16 @@ class MockedActorService extends StateNotifier<List<Actor>>
   MockedActorService() : super([]);
 
   @override
-  Future<void> fetchActors() async {}
+  Future<void> fetchActors() async {
+    state = [
+      const Actor(
+        name: 'Eddie Redmayne',
+        image: 'assets/images/actors',
+      ),
+      const Actor(
+        name: 'Jude Law',
+        image: 'assets/images/actors',
+      ),
+    ];
+  }
 }
