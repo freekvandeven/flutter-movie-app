@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:motion_sensors/motion_sensors.dart';
+import 'package:movie_viewing_app/src/models/movie_settings.dart';
+import 'package:movie_viewing_app/src/providers.dart';
 import 'package:movie_viewing_app/src/ui/screens/base.dart';
+import 'package:movie_viewing_app/src/ui/widgets/movie_card.dart';
 import 'package:vector_math/vector_math_64.dart' hide Colors;
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
+class _HomeScreenState extends ConsumerState<HomeScreen>
+    with TickerProviderStateMixin {
   bool _watchFavoriteDismissed = false;
   final Vector3 _orientation = Vector3.zero();
   final Vector3 _baseOrientation = Vector3.zero();
@@ -20,7 +24,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   @override
   void initState() {
-    motionSensors.orientationUpdateInterval = 60;
+    ref.read(movieCatalogueProvider.notifier).fetchMovies();
+    ref.read(actorProvider.notifier).fetchActors();
+    ref.read(movieSettingsProvider.notifier).fetchMovieUserSettings();
+
+    motionSensors.orientationUpdateInterval = 10;
     motionSensors.isOrientationAvailable().then((available) {
       if (available) {
         motionSensors.orientation.listen((OrientationEvent event) {
@@ -51,7 +59,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-
+    var movieSettings = ref.watch(movieSettingsProvider);
+    var movies = ref.watch(movieCatalogueProvider);
     return BaseScreen(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -140,36 +149,52 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ],
             ),
           ),
-          const SizedBox(
-            height: 100,
-          ),
-          Transform(
-            transform: Matrix4(
-              1,
-              0,
-              0,
-              0,
-              0,
-              1,
-              0,
-              0,
-              0,
-              0,
-              1,
-              0,
-              0,
-              0,
-              0,
-              1,
-            )
-              ..rotateY(-_orientation.z)
-              ..rotateX(-(_orientation.x - _baseOrientation.x)),
-            alignment: FractionalOffset.center,
-            child: Text(
-              'Thomb Rider',
-              style: Theme.of(context).textTheme.headline3,
+
+          SizedBox(
+            width: size.width * 0.5,
+            height: size.height * 0.4,
+            child: MovieCard(
+              movie: movies.first,
+              settings: movieSettings.firstWhere(
+                (element) => element.title == movies.first.title,
+                orElse: () =>
+                    MovieUserSettings.defaultSettings(movies.first.title),
+              ),
             ),
           ),
+          // make a scrollable list of movies with cards
+          // that contain the movie poster and title
+
+          // const SizedBox(
+          //   height: 100,
+          // ),
+          // Transform(
+          //   transform: Matrix4(
+          //     1,
+          //     0,
+          //     0,
+          //     0,
+          //     0,
+          //     1,
+          //     0,
+          //     0,
+          //     0,
+          //     0,
+          //     1,
+          //     0,
+          //     0,
+          //     0,
+          //     0,
+          //     1,
+          //   )
+          //     ..rotateY(-_orientation.z)
+          //     ..rotateX(-(_orientation.x - _baseOrientation.x)),
+          //   alignment: FractionalOffset.center,
+          //   child: Text(
+          //     'Thomb Rider',
+          //     style: Theme.of(context).textTheme.headline3,
+          //   ),
+          // ),
           const SizedBox(
             height: 100,
           ),
@@ -187,6 +212,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
                   ],
                 ),
+                // make a gridview of movie cards 2 wide
               ],
             ),
           ),

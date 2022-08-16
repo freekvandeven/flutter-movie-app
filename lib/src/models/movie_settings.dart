@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+
+@immutable
 class MovieUserSettings {
   const MovieUserSettings({
     required this.title,
@@ -12,6 +15,12 @@ class MovieUserSettings {
         timeWatched: json['timeWatched'] as int,
         selected: json['selected'] as bool,
       );
+  factory MovieUserSettings.defaultSettings(String title) => MovieUserSettings(
+        title: title,
+        favorite: false,
+        timeWatched: 0,
+        selected: false,
+      );
 
   final String title;
   final bool favorite;
@@ -24,4 +33,17 @@ class MovieUserSettings {
         'timeWatched': timeWatched,
         'selected': selected,
       };
+
+  MovieUserSettings copyWith({
+    String? title,
+    bool? favorite,
+    int? timeWatched,
+    bool? selected,
+  }) =>
+      MovieUserSettings(
+        title: title ?? this.title,
+        favorite: favorite ?? this.favorite,
+        timeWatched: timeWatched ?? this.timeWatched,
+        selected: selected ?? this.selected,
+      );
 }

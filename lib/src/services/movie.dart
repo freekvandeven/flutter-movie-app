@@ -33,12 +33,19 @@ class LocalMovieService extends StateNotifier<List<MovieUserSettings>>
 
   @override
   Future<void> updateMovieUserSettings(MovieUserSettings settings) async {
-    state = state.map((e) {
-      if (e.title == settings.title) {
-        return settings;
-      }
-      return e;
-    }).toList();
+    if (!state.any((MovieUserSettings e) => e.title == settings.title)) {
+      state = [
+        ...state,
+        settings,
+      ];
+    } else {
+      state = state.map((e) {
+        if (e.title == settings.title) {
+          return settings;
+        }
+        return e;
+      }).toList();
+    }
     var prefs = await SharedPreferences.getInstance();
     var json = jsonEncode(state.map((e) => e.toJson()).toList());
     await prefs.setString(movieUserSettingsKey, json);
