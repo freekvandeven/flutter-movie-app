@@ -4,10 +4,10 @@ ThemeData getTheme() {
   return ThemeData(
     colorScheme: const ColorScheme(
       brightness: Brightness.dark,
-      primary: Colors.white,
-      onPrimary: Colors.white,
-      secondary: Color(0xFF10a125),
-      onSecondary: Color(0xFF10a125),
+      primary: Color(0xFF10a125),
+      onPrimary: Color(0xFF10a125),
+      secondary: Color(0xFF395bf8),
+      onSecondary: Color(0xFF395bf8),
       error: Colors.red,
       onError: Colors.red,
       background: Color(0xFF0c1216),
@@ -15,6 +15,22 @@ ThemeData getTheme() {
       surface: Colors.white,
       onSurface: Colors.white,
     ),
-    textTheme: const TextTheme(),
+    textTheme: const TextTheme(
+      headline3: TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.w500,
+        color: Colors.white,
+      ),
+      headline4: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+        color: Colors.grey,
+      ),
+      bodyText1: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w300,
+        color: Colors.white,
+      ),
+    ),
   );
 }

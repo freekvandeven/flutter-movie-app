@@ -11,7 +11,7 @@ class MockedMovieCatalogueService extends StateNotifier<List<Movie>>
   MockedMovieCatalogueService() : super(const []);
 
   @override
-  Future<void> fetchMovies() async{
+  Future<void> fetchMovies() async {
     state = [
       const Movie(
         title: 'Fantastic beasts',
