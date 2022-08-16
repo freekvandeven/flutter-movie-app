@@ -10,10 +10,13 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   bool _watchFavoriteDismissed = false;
   final Vector3 _orientation = Vector3.zero();
   final Vector3 _baseOrientation = Vector3.zero();
+  late AnimationController _fadeController;
+  bool _shrinkingBox = false;
+  late Animation<double> scaleAnimation;
 
   @override
   void initState() {
@@ -30,6 +33,18 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
     });
+    _fadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 250),
+    )..addListener(() {
+        setState(() {});
+      });
+    scaleAnimation = Tween(begin: 1.0, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _fadeController,
+        curve: Curves.easeIn,
+      ),
+    );
     super.initState();
   }
 
@@ -41,53 +56,78 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (!_watchFavoriteDismissed) ...[
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            'Watch favorite movies\n without any ads',
-                            style: Theme.of(context).textTheme.headline5,
-                          ),
-                          const Spacer(),
-                          // dismiss button
-                          IconButton(
-                            icon: const Icon(Icons.close),
-                            onPressed: () {
-                              setState(() {
-                                _watchFavoriteDismissed = true;
-                              });
-                            },
-                          ),
-                        ],
+          if (!_shrinkingBox) ...[
+            SizedBox(
+              height: size.height * 0.15,
+              child: AnimatedOpacity(
+                curve: Curves.easeIn,
+                opacity: _watchFavoriteDismissed ? 0.0 : 1.0,
+                onEnd: () {
+                  _fadeController.forward();
+                  _shrinkingBox = true;
+                },
+                duration: const Duration(milliseconds: 400),
+                child: Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: size.width * 0.05,
+                      vertical: size.height * 0.01,
+                    ),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.circular(15),
                       ),
-                      DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary,
-                          borderRadius: BorderRadius.circular(20),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8.0,
+                          vertical: 10.0,
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            'Get premium',
-                            style: Theme.of(context).textTheme.headline5,
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  'Watch favorite movies \nwithout any ads',
+                                  style: Theme.of(context).textTheme.headline5,
+                                ),
+                                const Spacer(),
+                                // dismiss button
+                                IconButton(
+                                  icon: const Icon(Icons.close),
+                                  onPressed: () {
+                                    setState(() {
+                                      _watchFavoriteDismissed = true;
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                            DecoratedBox(
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.primary,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  'Get premium',
+                                  style: Theme.of(context).textTheme.headline5,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
+            ),
+          ] else ...[
+            SizedBox(
+              height: size.height * 0.15 * scaleAnimation.value,
             ),
           ],
           Padding(
@@ -132,18 +172,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(
             height: 100,
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text(
-                  'Gyroscope: ${_orientation.y}',
-                  style: Theme.of(context).textTheme.headline4,
-                ),
-              ],
-            ),
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
