@@ -103,7 +103,7 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen> {
                       GestureDetector(
                         onTap: () {
                           Navigator.of(context).pushNamed(
-                            MovieRoute.movieDetail.route,
+                            MovieRoute.movieView.route,
                           );
                         },
                         child: Container(
