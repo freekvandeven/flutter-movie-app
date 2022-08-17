@@ -7,11 +7,14 @@ class MovieCard extends ConsumerWidget {
     required this.movie,
     required this.settings,
     this.onTap,
+    this.rotatable = false,
     Key? key,
   }) : super(key: key);
+  
   final Movie movie;
   final MovieUserSettings settings;
   final Function(BuildContext)? onTap;
+  final bool rotatable;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
