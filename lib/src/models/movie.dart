@@ -15,7 +15,8 @@ class Movie {
   const Movie({
     required this.title,
     required this.description,
-    required this.image,
+    required this.bannerImage,
+    required this.descriptionImage,
     required this.video,
     required this.duration,
     required this.year,
@@ -27,7 +28,8 @@ class Movie {
   });
   final String title;
   final String description;
-  final String image;
+  final String bannerImage;
+  final String descriptionImage;
   final String video;
   final int duration;
   final int year;

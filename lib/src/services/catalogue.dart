@@ -15,8 +15,10 @@ class MockedMovieCatalogueService extends StateNotifier<List<Movie>>
     state = [
       const Movie(
         title: 'Fantastic beasts',
-        description: '',
-        image: 'assets/images/movies',
+        description: 'Professor Albus Dumbledore must assign Newt Scamander '
+            'and his fellow partners...',
+        bannerImage: 'assets/images/movies/secrets_dumbledore.jpg',
+        descriptionImage: 'assets/images/movies/secrets_dumbledore_detail.jpg',
         video: 'assets/video',
         duration: 7400,
         year: 2022,
@@ -38,7 +40,8 @@ class MockedMovieCatalogueService extends StateNotifier<List<Movie>>
       const Movie(
         title: 'Tomb Raider',
         description: '',
-        image: 'assets/images/movies',
+        bannerImage: 'assets/images/movies',
+        descriptionImage: 'assets/images/movies',
         video: 'assets/video',
         duration: 7400,
         year: 2022,
@@ -57,7 +60,8 @@ class MockedMovieCatalogueService extends StateNotifier<List<Movie>>
       const Movie(
         title: 'Morbius',
         description: 'It\'s morbing time',
-        image: 'assets/images/movies',
+        bannerImage: 'assets/images/movies',
+        descriptionImage: 'assets/images/movies',
         video: 'assets/video',
         duration: 7400,
         year: 2022,
@@ -73,7 +77,8 @@ class MockedMovieCatalogueService extends StateNotifier<List<Movie>>
       const Movie(
         title: 'Jungle cruise',
         description: '',
-        image: '',
+        bannerImage: '',
+        descriptionImage: '',
         video: '',
         duration: 7400,
         year: 2022,

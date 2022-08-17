@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:motion_sensors/motion_sensors.dart';
 import 'package:movie_viewing_app/src/models/movie_settings.dart';
+import 'package:movie_viewing_app/src/movieroute.dart';
 import 'package:movie_viewing_app/src/providers.dart';
 import 'package:movie_viewing_app/src/ui/screens/base.dart';
 import 'package:movie_viewing_app/src/ui/widgets/movie_card.dart';
@@ -150,6 +151,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             width: size.width * 0.5,
             height: size.height * 0.4,
             child: MovieCard(
+              onTap: (context) {
+                Navigator.of(context).pushNamed(MovieRoute.movieDetail.route);
+              },
               movie: movies.first,
               settings: movieSettings.firstWhere(
                 (element) => element.title == movies.first.title,
