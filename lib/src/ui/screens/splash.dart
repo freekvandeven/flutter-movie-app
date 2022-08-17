@@ -17,7 +17,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     ref.read(actorProvider.notifier).fetchActors();
     ref.read(movieSettingsProvider.notifier).fetchMovieUserSettings();
     // route to home screen after some time
-    Future.delayed(const Duration(seconds: 1), () {
+    Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted) {
         Navigator.of(context).pushReplacementNamed(MovieRoute.homeScreen.route);
         // if a movie was selected route to the movie detail screen
@@ -38,12 +38,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       child:
           // show app logo in the middle of the screen
           Center(
-        child: Text(
-          'Movie Viewing App',
-          style: TextStyle(
-            fontSize: 48,
-            fontWeight: FontWeight.bold,
-          ),
+        child: Image(
+          image: AssetImage('assets/images/icons/logo.jpg'),
         ),
       ),
     );

@@ -3,7 +3,9 @@ import 'package:movie_viewing_app/src/models/movie_settings.dart';
 import 'package:movie_viewing_app/src/movieroute.dart';
 import 'package:movie_viewing_app/src/providers.dart';
 import 'package:movie_viewing_app/src/ui/screens/base.dart';
+import 'package:movie_viewing_app/src/ui/widgets/icon_button.dart';
 import 'package:movie_viewing_app/src/ui/widgets/movie_card.dart';
+import 'package:movie_viewing_app/src/ui/widgets/premium_card.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -12,30 +14,7 @@ class HomeScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends ConsumerState<HomeScreen>
-    with TickerProviderStateMixin {
-  bool _watchFavoriteDismissed = false;
-  late AnimationController _fadeController;
-  bool _shrinkingBox = false;
-  late Animation<double> scaleAnimation;
-
-  @override
-  void initState() {
-    _fadeController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 250),
-    )..addListener(() {
-        setState(() {});
-      });
-    scaleAnimation = Tween(begin: 1.0, end: 0.0).animate(
-      CurvedAnimation(
-        parent: _fadeController,
-        curve: Curves.easeIn,
-      ),
-    );
-    super.initState();
-  }
-
+class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
@@ -49,86 +28,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (!_shrinkingBox) ...[
-                  SizedBox(
-                    height: size.height * 0.15,
-                    child: AnimatedOpacity(
-                      curve: Curves.easeIn,
-                      opacity: _watchFavoriteDismissed ? 0.0 : 1.0,
-                      onEnd: () {
-                        _fadeController.forward();
-                        _shrinkingBox = true;
-                      },
-                      duration: const Duration(milliseconds: 400),
-                      child: Center(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: size.width * 0.05,
-                            vertical: size.height * 0.01,
-                          ),
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              color: Colors.blue,
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8.0,
-                                vertical: 10.0,
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        'Watch favorite movies '
-                                        '\nwithout any ads',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline5,
-                                      ),
-                                      const Spacer(),
-                                      // dismiss button
-                                      IconButton(
-                                        icon: const Icon(Icons.close),
-                                        onPressed: () {
-                                          setState(() {
-                                            _watchFavoriteDismissed = true;
-                                          });
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                  DecoratedBox(
-                                    decoration: BoxDecoration(
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(
-                                        'Get premium',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline5,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ] else ...[
-                  SizedBox(
-                    height: size.height * 0.15 * scaleAnimation.value,
-                  ),
-                ],
+                const PremiumCard(),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
                   child: Row(
@@ -161,9 +61,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     ),
                   ),
                 ),
-                const SizedBox(
-                  height: 100,
-                ),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
                   child: Column(
@@ -190,9 +87,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                         physics: const NeverScrollableScrollPhysics(),
                         crossAxisCount: 2,
                         childAspectRatio: 0.6,
-                        mainAxisSpacing: 10,
-                        crossAxisSpacing: 10,
+                        mainAxisSpacing: size.height * 0.03,
+                        crossAxisSpacing: size.width * 0.05,
                         children: movies
+                            .where((element) => element.upcoming)
+                            .take(8)
                             .map(
                               (movie) => MovieCard(
                                 onTap: (context) {
@@ -209,7 +108,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                                   ),
                                 ),
                               ),
-                            )
+                            ) // only first 8 items in the list are shown
                             .toList(),
                       ),
                     ],
@@ -219,7 +118,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             ),
           ),
           Container(
-            height: size.height * 0.1,
+            height: size.height * 0.1, // topbar height
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.background,
             ),
@@ -234,10 +133,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     onPressed: () {},
                   ),
                   const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.menu),
-                    onPressed: () {},
-                  ),
+                  CustomIconButton(onTap: (_) {}, icon: Icons.menu),
                 ],
               ),
             ),

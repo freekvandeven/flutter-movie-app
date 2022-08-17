@@ -27,8 +27,13 @@ ThemeData getTheme() {
         color: Colors.grey,
       ),
       headline5: TextStyle(
-        fontSize: 16,
+        fontSize: 18,
         fontWeight: FontWeight.w500,
+        color: Colors.white,
+      ),
+      headline6: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
         color: Colors.white,
       ),
       bodyText1: TextStyle(

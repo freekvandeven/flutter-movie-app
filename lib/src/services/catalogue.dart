@@ -55,7 +55,7 @@ class MockedMovieCatalogueService extends StateNotifier<List<Movie>>
         ],
         rating: 7.8,
         popular: true,
-        upcoming: false,
+        upcoming: true,
       ),
       const Movie(
         title: 'Morbius',
@@ -72,7 +72,7 @@ class MockedMovieCatalogueService extends StateNotifier<List<Movie>>
         ],
         rating: 6.7,
         popular: true,
-        upcoming: false,
+        upcoming: true,
       ),
       const Movie(
         title: 'Jungle cruise',
@@ -89,7 +89,7 @@ class MockedMovieCatalogueService extends StateNotifier<List<Movie>>
         actors: [],
         rating: 7.1,
         popular: true,
-        upcoming: false,
+        upcoming: true,
       ),
     ];
   }

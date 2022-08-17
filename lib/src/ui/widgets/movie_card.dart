@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:movie_viewing_app/src/models/models.dart';
 import 'package:movie_viewing_app/src/providers.dart';
+import 'package:movie_viewing_app/src/ui/widgets/rotate_card.dart';
 
 class MovieCard extends ConsumerWidget {
   const MovieCard({
@@ -10,7 +11,7 @@ class MovieCard extends ConsumerWidget {
     this.rotatable = false,
     Key? key,
   }) : super(key: key);
-  
+
   final Movie movie;
   final MovieUserSettings settings;
   final Function(BuildContext)? onTap;
@@ -19,10 +20,9 @@ class MovieCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var size = MediaQuery.of(context).size;
-    return GestureDetector(
+    var content = GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
-        debugPrint('card tapped');
         // update the moviesetting to selected
         ref.read(movieSettingsProvider.notifier).updateMovieUserSettings(
               settings.copyWith(selected: true),
@@ -125,5 +125,6 @@ class MovieCard extends ConsumerWidget {
         ),
       ),
     );
+    return rotatable ? RotateCardWidget(child: content) : content;
   }
 }
