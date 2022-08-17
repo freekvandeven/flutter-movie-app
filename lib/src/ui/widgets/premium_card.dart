@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:movie_viewing_app/src/ui/widgets/icon_button.dart';
 
 class PremiumCard extends StatefulWidget {
   const PremiumCard({Key? key}) : super(key: key);
@@ -78,23 +79,29 @@ class _PremiumCardState extends State<PremiumCard>
                             ),
                             const Spacer(),
                             // dismiss button
-                            IconButton(
-                              icon: const Icon(Icons.close),
-                              onPressed: () {
+                            CustomIconButton(
+                              onTap: (_) {
                                 setState(() {
                                   _watchFavoriteDismissed = true;
                                 });
                               },
+                              icon: Icons.close_rounded,
                             ),
                           ],
+                        ),
+                        SizedBox(
+                          height: size.height * 0.01,
                         ),
                         DecoratedBox(
                           decoration: BoxDecoration(
                             color: Theme.of(context).colorScheme.primary,
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(15),
                           ),
                           child: Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: size.width * 0.06,
+                              vertical: size.height * 0.010,
+                            ),
                             child: Text(
                               'Get premium',
                               style: Theme.of(context).textTheme.headline5,

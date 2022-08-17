@@ -19,7 +19,7 @@ class CustomIconButton extends StatelessWidget {
       ),
       child: IconButton(
         padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.01),
-        onPressed: () => onTap,
+        onPressed: () => onTap(context),
         icon: Icon(icon),
       ),
     );

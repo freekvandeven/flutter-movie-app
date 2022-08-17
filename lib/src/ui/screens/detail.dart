@@ -3,6 +3,7 @@ import 'package:movie_viewing_app/src/models/models.dart';
 import 'package:movie_viewing_app/src/movieroute.dart';
 import 'package:movie_viewing_app/src/providers.dart';
 import 'package:movie_viewing_app/src/ui/screens/base.dart';
+import 'package:movie_viewing_app/src/ui/widgets/icon_button.dart';
 
 class MovieDetailScreen extends ConsumerStatefulWidget {
   const MovieDetailScreen({Key? key}) : super(key: key);
@@ -17,27 +18,32 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen> {
 
   @override
   void initState() {
-    movieSettings = ref
-        .read(movieSettingsProvider)
-        .firstWhere((element) => element.selected);
-    movie = ref
-        .read(movieCatalogueProvider)
-        .firstWhere((element) => element.title == movieSettings.title);
     super.initState();
   }
 
-  Future<void> _onPageExit() async {
+  Future<void> _onPageExit(MovieUserSettings settings) async {
     await ref
         .read(movieSettingsProvider.notifier)
-        .updateMovieUserSettings(movieSettings.copyWith(selected: false));
+        .updateMovieUserSettings(settings.copyWith(selected: false));
   }
 
   @override
   Widget build(BuildContext context) {
+    // prevent Bad State during settings update and screen pop
+    var settings =
+        ref.watch(movieSettingsProvider).where((element) => element.selected);
+    if (settings.isEmpty) {
+      return Container();
+    } else {
+      movieSettings = settings.first;
+    }
+    movie = ref
+        .read(movieCatalogueProvider)
+        .firstWhere((element) => element.title == movieSettings.title);
     var size = MediaQuery.of(context).size;
     return WillPopScope(
       onWillPop: () async {
-        await _onPageExit();
+        await _onPageExit(movieSettings);
         return true;
       },
       child: BaseScreen(
@@ -135,22 +141,20 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // backbutton
-                IconButton(
-                  icon: const Icon(Icons.chevron_left),
-                  onPressed: () async {
+                CustomIconButton(
+                  icon: Icons.chevron_left,
+                  onTap: (_) async {
                     var navigator = Navigator.of(context);
-                    await _onPageExit();
+                    await _onPageExit(movieSettings);
                     navigator.pop();
                   },
                 ),
                 // likebutton
-                IconButton(
-                  icon: Icon(
-                    movieSettings.favorite
-                        ? Icons.favorite
-                        : Icons.favorite_border,
-                  ),
-                  onPressed: () {
+                CustomIconButton(
+                  icon: movieSettings.favorite
+                      ? Icons.favorite
+                      : Icons.favorite_border,
+                  onTap: (_) {
                     ref
                         .read(movieSettingsProvider.notifier)
                         .updateMovieUserSettings(

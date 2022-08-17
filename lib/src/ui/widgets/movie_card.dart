@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:movie_viewing_app/src/models/models.dart';
 import 'package:movie_viewing_app/src/providers.dart';
+import 'package:movie_viewing_app/src/ui/widgets/icon_button.dart';
 import 'package:movie_viewing_app/src/ui/widgets/rotate_card.dart';
 
 class MovieCard extends ConsumerWidget {
@@ -27,6 +28,7 @@ class MovieCard extends ConsumerWidget {
         ref.read(movieSettingsProvider.notifier).updateMovieUserSettings(
               settings.copyWith(selected: true),
             );
+
         onTap?.call(context);
       },
       child: DecoratedBox(
@@ -40,8 +42,8 @@ class MovieCard extends ConsumerWidget {
           children: [
             Align(
               alignment: Alignment.topRight,
-              child: IconButton(
-                onPressed: () {
+              child: CustomIconButton(
+                onTap: (_) {
                   // favorite the movie
                   ref
                       .read(movieSettingsProvider.notifier)
@@ -51,10 +53,8 @@ class MovieCard extends ConsumerWidget {
                         ),
                       );
                 },
-                icon: Icon(
-                  settings.favorite ? Icons.favorite : Icons.favorite_outline,
-                  size: size.width * 0.05,
-                ),
+                icon:
+                    settings.favorite ? Icons.favorite : Icons.favorite_outline,
               ),
             ),
             DecoratedBox(
