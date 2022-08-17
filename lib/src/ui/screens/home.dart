@@ -24,10 +24,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
   @override
   void initState() {
-    ref.read(movieCatalogueProvider.notifier).fetchMovies();
-    ref.read(actorProvider.notifier).fetchActors();
-    ref.read(movieSettingsProvider.notifier).fetchMovieUserSettings();
-
     motionSensors.orientationUpdateInterval = 10;
     motionSensors.isOrientationAvailable().then((available) {
       if (available) {

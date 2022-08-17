@@ -10,7 +10,7 @@ class MovieViewingAppApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: getTheme(),
-      initialRoute: MovieRoute.homeScreen.route,
+      initialRoute: MovieRoute.splashScreen.route,
       onGenerateRoute: (settings) {
         var routes = getRoutes(settings);
         if (routes.containsKey(settings.name)) {
