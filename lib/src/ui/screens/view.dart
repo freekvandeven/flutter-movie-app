@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:floating/floating.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:movie_viewing_app/src/models/models.dart';
@@ -16,6 +17,7 @@ class MovieViewScreen extends ConsumerStatefulWidget {
 }
 
 class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
+  final Floating floating = Floating();
   late MovieUserSettings _settings;
   late Movie _movie;
   late Timer _timer;
@@ -52,6 +54,7 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
 
   @override
   void dispose() {
+    floating.dispose();
     _timer.cancel();
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeRight,
@@ -60,6 +63,11 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
       DeviceOrientation.portraitDown,
     ]);
     super.dispose();
+  }
+
+  Future<void> enablePip() async {
+    var status = await floating.enable(const Rational.landscape());
+    debugPrint('PiP enabled? $status');
   }
 
   @override
@@ -101,7 +109,7 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
                   // grey background with a bit of transparancy
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
-                    color: Colors.grey.withOpacity(100),
+                    color: Colors.grey,
                   ),
                   child: Row(
                     children: [
@@ -132,8 +140,21 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
                       CustomIconButton(
                         onTap: () {
                           debugPrint('Open flutter app in android window');
+
+                          // TODO(freek): Add message or alternative for iOS
                         },
                         icon: Icons.expand,
+                      ),
+                      PiPSwitcher(
+                        childWhenEnabled: CustomIconButton(
+                          onTap: () {},
+                          icon: Icons.expand_outlined,
+                        ),
+                        childWhenDisabled: CustomIconButton(
+                          onTap: enablePip,
+                          icon: Icons.picture_in_picture,
+                        ),
+                        floating: floating,
                       ),
                     ],
                   ),
