@@ -14,7 +14,7 @@ class MockedMovieCatalogueService extends StateNotifier<List<Movie>>
   Future<void> fetchMovies() async {
     state = [
       const Movie(
-        title: 'Fantastic beasts',
+        title: 'Fantastic beasts: The Secrets of Dumbledore',
         description: 'Professor Albus Dumbledore must assign Newt Scamander '
             'and his fellow partners...',
         bannerImage: 'assets/images/movies/secrets_dumbledore.jpg',
@@ -41,7 +41,7 @@ class MockedMovieCatalogueService extends StateNotifier<List<Movie>>
       const Movie(
         title: 'Tomb Raider',
         description: '',
-        bannerImage: 'assets/images/movies',
+        bannerImage: 'assets/images/movies/tomb_raider.jpg',
         descriptionImage: 'assets/images/movies',
         trailer: 'https://www.youtube.com/watch?v=8ndhidEmUbI',
         video: 'assets/video',
@@ -62,7 +62,7 @@ class MockedMovieCatalogueService extends StateNotifier<List<Movie>>
       const Movie(
         title: 'Morbius',
         description: 'It\'s morbing time',
-        bannerImage: 'assets/images/movies',
+        bannerImage: 'assets/images/movies/morbius.jpg',
         descriptionImage: 'assets/images/movies',
         trailer: 'https://www.youtube.com/watch?v=oZ6iiRrz1SY',
         video: 'assets/video',
@@ -80,7 +80,7 @@ class MockedMovieCatalogueService extends StateNotifier<List<Movie>>
       const Movie(
         title: 'Jungle cruise',
         description: '',
-        bannerImage: '',
+        bannerImage: 'assets/images/movies/jungle_cruise.jpeg',
         descriptionImage: '',
         trailer: 'https://www.youtube.com/watch?v=f_HvoipFcA8',
         video: '',

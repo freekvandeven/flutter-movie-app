@@ -15,6 +15,7 @@ class _RotateCardWidgetState extends State<RotateCardWidget> {
   final Vector3 _baseOrientation = Vector3.zero();
   @override
   void initState() {
+    super.initState();
     motionSensors.orientationUpdateInterval = 10;
     motionSensors.isOrientationAvailable().then((available) {
       if (available) {
@@ -28,7 +29,6 @@ class _RotateCardWidgetState extends State<RotateCardWidget> {
         });
       }
     });
-    super.initState();
   }
 
   @override

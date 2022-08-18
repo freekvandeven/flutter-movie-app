@@ -16,6 +16,11 @@ ThemeData getTheme() {
       onSurface: Colors.white,
     ),
     textTheme: const TextTheme(
+      headline1: TextStyle(
+        fontSize: 21,
+        fontWeight: FontWeight.w500,
+        color: Colors.white,
+      ),
       headline3: TextStyle(
         fontSize: 20,
         fontWeight: FontWeight.w500,
@@ -27,7 +32,7 @@ ThemeData getTheme() {
         color: Colors.grey,
       ),
       headline5: TextStyle(
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: FontWeight.w500,
         color: Colors.white,
       ),

@@ -58,8 +58,13 @@ class _PremiumCardState extends State<PremiumCard>
                   vertical: size.height * 0.01,
                 ),
                 child: DecoratedBox(
+                  // add gradient from the left with color 1f3829
                   decoration: BoxDecoration(
-                    color: Colors.blue,
+                    // use background image premium.png as background
+                    image: const DecorationImage(
+                      image: AssetImage('assets/images/premium.png'),
+                      fit: BoxFit.cover,
+                    ),
                     borderRadius: BorderRadius.circular(15),
                   ),
                   child: Padding(

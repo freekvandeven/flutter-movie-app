@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:movie_viewing_app/src/models/models.dart';
 import 'package:movie_viewing_app/src/providers.dart';
+import 'package:movie_viewing_app/src/ui/widgets/genre_card.dart';
 import 'package:movie_viewing_app/src/ui/widgets/icon_button.dart';
 import 'package:movie_viewing_app/src/ui/widgets/rotate_card.dart';
 
@@ -10,6 +11,7 @@ class MovieCard extends ConsumerWidget {
     required this.settings,
     this.onTap,
     this.rotatable = false,
+    this.scale = 1.0,
     Key? key,
   }) : super(key: key);
 
@@ -17,6 +19,7 @@ class MovieCard extends ConsumerWidget {
   final MovieUserSettings settings;
   final Function(BuildContext)? onTap;
   final bool rotatable;
+  final double scale;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -35,7 +38,10 @@ class MovieCard extends ConsumerWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          color: Colors.green,
+          image: DecorationImage(
+            image: AssetImage(movie.bannerImage),
+            fit: BoxFit.cover,
+          ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -74,9 +80,14 @@ class MovieCard extends ConsumerWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Text(
-                          movie.title,
-                          style: Theme.of(context).textTheme.headline5,
+                        SizedBox(
+                          width: size.width * 0.35,
+                          child: Text(
+                            movie.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.headline5,
+                          ),
                         ),
                         // TODO(freek): replace . with a ,
                         const Spacer(),
@@ -100,20 +111,7 @@ class MovieCard extends ConsumerWidget {
                             padding: EdgeInsets.only(
                               right: size.width * 0.01,
                             ),
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: size.width * 0.02,
-                                vertical: size.height * 0.002,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.secondary,
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              child: Text(
-                                genre,
-                                style: Theme.of(context).textTheme.headline5,
-                              ),
-                            ),
+                            child: GenreCard(title: genre),
                           ),
                         ],
                       ],

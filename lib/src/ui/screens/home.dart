@@ -36,7 +36,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     children: [
                       Text(
                         'Popular',
-                        style: Theme.of(context).textTheme.headline3,
+                        style: Theme.of(context).textTheme.headline1,
                       ),
                       Text(
                         'View all',
@@ -73,7 +73,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           children: [
                             Text(
                               'New',
-                              style: Theme.of(context).textTheme.headline3,
+                              style: Theme.of(context).textTheme.headline1,
                             ),
                             Text(
                               'View all',
