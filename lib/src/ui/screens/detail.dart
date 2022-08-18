@@ -4,6 +4,7 @@ import 'package:movie_viewing_app/src/movieroute.dart';
 import 'package:movie_viewing_app/src/providers.dart';
 import 'package:movie_viewing_app/src/ui/screens/base.dart';
 import 'package:movie_viewing_app/src/ui/widgets/icon_button.dart';
+import 'package:share_plus/share_plus.dart';
 
 class MovieDetailScreen extends ConsumerStatefulWidget {
   const MovieDetailScreen({Key? key}) : super(key: key);
@@ -116,7 +117,9 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen> {
                         },
                         child: Container(
                           child: Text(
-                            'Watch movie',
+                            movieSettings.timeWatched <= 0
+                                ? 'Watch movie'
+                                : 'Continue watching',
                             style: textTheme.headline5,
                           ),
                         ),
@@ -130,6 +133,10 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen> {
                       IconButton(
                         onPressed: () {
                           debugPrint('share movie link');
+                          Share.share(
+                            movie.trailer,
+                            subject: 'New Movie you should watch',
+                          );
                         },
                         icon: const Icon(Icons.share),
                       ),

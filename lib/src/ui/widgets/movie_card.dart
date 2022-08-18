@@ -20,6 +20,7 @@ class MovieCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // TODO(freek): create a different layout when movie has already been played
     var size = MediaQuery.of(context).size;
     var content = GestureDetector(
       behavior: HitTestBehavior.translucent,
