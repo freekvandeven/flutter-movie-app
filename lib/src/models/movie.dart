@@ -17,6 +17,7 @@ class Movie {
     required this.description,
     required this.bannerImage,
     required this.descriptionImage,
+    required this.trailer,
     required this.video,
     required this.duration,
     required this.year,
@@ -30,6 +31,7 @@ class Movie {
   final String description;
   final String bannerImage;
   final String descriptionImage;
+  final String trailer;
   final String video;
   final int duration;
   final int year;

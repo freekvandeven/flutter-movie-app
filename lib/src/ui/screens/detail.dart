@@ -41,6 +41,7 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen> {
         .read(movieCatalogueProvider)
         .firstWhere((element) => element.title == movieSettings.title);
     var size = MediaQuery.of(context).size;
+    var textTheme = Theme.of(context).textTheme;
     return WillPopScope(
       onWillPop: () async {
         await _onPageExit(movieSettings);
@@ -57,28 +58,35 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen> {
                   ),
                   Text(
                     movie.title,
-                    style: Theme.of(context).textTheme.headline3,
+                    style: textTheme.headline3,
                   ),
                   Row(
                     children: [
                       Text(
                         movie.rating.toString(),
-                        style: Theme.of(context).textTheme.headline4,
+                        style: textTheme.headline4,
                       ),
                       Icon(
                         Icons.star,
-                        color: Theme.of(context).textTheme.headline4!.color,
+                        color: textTheme.headline4!.color,
                       ),
                       // dot in the middle of the text
-                      const Text('·'),
                       Text(
-                        '${movie.duration ~/ 60}h ${movie.duration % 60} min',
-                        style: Theme.of(context).textTheme.headline4,
+                        '·',
+                        style: textTheme.headline4,
                       ),
-                      const Text('·'),
+                      Text(
+                        '${movie.duration ~/ 3600}h '
+                        '${movie.duration % 3600 ~/ 60} min',
+                        style: textTheme.headline4,
+                      ),
+                      Text(
+                        '·',
+                        style: textTheme.headline4,
+                      ),
                       Text(
                         movie.year.toString(),
-                        style: Theme.of(context).textTheme.headline4,
+                        style: textTheme.headline4,
                       ),
                     ],
                   ),
@@ -92,7 +100,7 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen> {
                           ),
                           child: Text(
                             genre,
-                            style: Theme.of(context).textTheme.bodyText1,
+                            style: textTheme.bodyText1,
                           ),
                         ),
                       ],
@@ -109,7 +117,7 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen> {
                         child: Container(
                           child: Text(
                             'Watch movie',
-                            style: Theme.of(context).textTheme.headline5,
+                            style: textTheme.headline5,
                           ),
                         ),
                       ),
@@ -132,7 +140,7 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen> {
 
                   Text(
                     movie.description,
-                    style: Theme.of(context).textTheme.bodyText1,
+                    style: textTheme.bodyText1,
                   ),
                 ],
               ),
@@ -143,7 +151,7 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen> {
                 // backbutton
                 CustomIconButton(
                   icon: Icons.chevron_left,
-                  onTap: (_) async {
+                  onTap: () async {
                     var navigator = Navigator.of(context);
                     await _onPageExit(movieSettings);
                     navigator.pop();
@@ -154,7 +162,7 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen> {
                   icon: movieSettings.favorite
                       ? Icons.favorite
                       : Icons.favorite_border,
-                  onTap: (_) {
+                  onTap: () {
                     ref
                         .read(movieSettingsProvider.notifier)
                         .updateMovieUserSettings(

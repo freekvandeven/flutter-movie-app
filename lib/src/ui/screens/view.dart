@@ -19,7 +19,7 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
   late MovieUserSettings _settings;
   late Movie _movie;
   late Timer _timer;
-  int minutesPlayed = 0;
+  int secondsPlayed = 0;
 
   @override
   void initState() {
@@ -36,10 +36,15 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
         .firstWhere((element) => element.title == _settings.title);
 
     // start timer to update time watched every minute
-    _timer = Timer.periodic(const Duration(seconds: 60), (timer) {
-      minutesPlayed++;
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      secondsPlayed += 60;
+      if (secondsPlayed + _settings.timeWatched >= _movie.duration) {
+        secondsPlayed = -1 * _settings.timeWatched;
+      }
       ref.read(movieSettingsProvider.notifier).updateMovieUserSettings(
-            _settings.copyWith(timeWatched: minutesPlayed),
+            _settings.copyWith(
+              timeWatched: _settings.timeWatched + secondsPlayed,
+            ),
           );
       setState(() {});
     });
@@ -79,30 +84,35 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     CustomIconButton(
-                      onTap: (_) {
+                      onTap: () {
                         Navigator.of(context).pop();
                       },
                       icon: Icons.close_rounded,
                     ),
                     CustomIconButton(
-                      onTap: (_) {
+                      onTap: () {
                         debugPrint('open video settings');
                       },
                       icon: Icons.settings_outlined,
                     ),
                   ],
                 ),
-                Container(
+                DecoratedBox(
+                  // grey background with a bit of transparancy
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    color: Colors.grey.withOpacity(100),
+                  ),
                   child: Row(
                     children: [
                       CustomIconButton(
-                        onTap: (_) {
+                        onTap: () {
                           debugPrint('Change video quality');
                         },
                         icon: Icons.high_quality_outlined,
                       ),
                       CustomIconButton(
-                        onTap: (_) {
+                        onTap: () {
                           debugPrint('Toggle closed caption');
                         },
                         icon: Icons.closed_caption_outlined,
@@ -110,7 +120,8 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
                       // video progress bar
                       Expanded(
                         child: Slider(
-                          value: _settings.timeWatched / _movie.duration,
+                          value: (_settings.timeWatched + secondsPlayed) /
+                              _movie.duration,
                           onChanged: (value) {
                             debugPrint('Video progress: $value');
                           },
@@ -119,7 +130,7 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
                         ),
                       ),
                       CustomIconButton(
-                        onTap: (_) {
+                        onTap: () {
                           debugPrint('Open flutter app in android window');
                         },
                         icon: Icons.expand,

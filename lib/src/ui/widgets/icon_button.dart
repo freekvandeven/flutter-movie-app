@@ -7,7 +7,7 @@ class CustomIconButton extends StatelessWidget {
     Key? key,
   }) : super(key: key);
 
-  final Function(BuildContext) onTap;
+  final Function() onTap;
   final IconData icon;
 
   @override
@@ -19,7 +19,7 @@ class CustomIconButton extends StatelessWidget {
       ),
       child: IconButton(
         padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.01),
-        onPressed: () => onTap(context),
+        onPressed: onTap,
         icon: Icon(icon),
       ),
     );

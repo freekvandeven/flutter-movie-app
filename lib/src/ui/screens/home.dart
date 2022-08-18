@@ -133,7 +133,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     onPressed: () {},
                   ),
                   const Spacer(),
-                  CustomIconButton(onTap: (_) {}, icon: Icons.menu),
+                  CustomIconButton(
+                    onTap: () {
+                      debugPrint('open settings for movie providers');
+                    },
+                    icon: Icons.menu,
+                  ),
                 ],
               ),
             ),

@@ -43,7 +43,7 @@ class MovieCard extends ConsumerWidget {
             Align(
               alignment: Alignment.topRight,
               child: CustomIconButton(
-                onTap: (_) {
+                onTap: () {
                   // favorite the movie
                   ref
                       .read(movieSettingsProvider.notifier)
