@@ -3,8 +3,10 @@ import 'package:movie_viewing_app/src/models/models.dart';
 import 'package:movie_viewing_app/src/movieroute.dart';
 import 'package:movie_viewing_app/src/providers.dart';
 import 'package:movie_viewing_app/src/ui/screens/base.dart';
+import 'package:movie_viewing_app/src/ui/widgets/genre_card.dart';
 import 'package:movie_viewing_app/src/ui/widgets/icon_button.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class MovieDetailScreen extends ConsumerStatefulWidget {
   const MovieDetailScreen({Key? key}) : super(key: key);
@@ -16,6 +18,8 @@ class MovieDetailScreen extends ConsumerStatefulWidget {
 class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen> {
   late Movie movie;
   late MovieUserSettings movieSettings;
+  bool playerEnabled = true;
+  bool isPlaying = false;
 
   @override
   void initState() {
@@ -54,9 +58,51 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen> {
             SingleChildScrollView(
               child: Column(
                 children: [
-                  SizedBox(
-                    height: size.height * 0.3,
-                  ),
+                  if (playerEnabled) ...[
+                    // show movie poster for the first few seconds
+                    Stack(
+                      children: [
+                        YoutubePlayer(
+                          onReady: () {
+                            Future.delayed(const Duration(seconds: 4), () {
+                              setState(() {
+                                isPlaying = true;
+                              });
+                            });
+                          },
+                          controller: YoutubePlayerController(
+                            initialVideoId:
+                                YoutubePlayer.convertUrlToId(movie.trailer) ??
+                                    '',
+                            flags: const YoutubePlayerFlags(
+                              startAt: 1,
+                              hideThumbnail: true,
+                              autoPlay: true,
+                              mute: true,
+                              hideControls: true,
+                              enableCaption: false,
+                              loop: true,
+                            ),
+                          ),
+                        ),
+                        Opacity(
+                          opacity: isPlaying ? 0 : 0.98,
+                          child: SizedBox(
+                            width: size.width,
+                            height: size.height * 0.30,
+                            child: Image.asset(
+                              movie.descriptionImage,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ] else ...[
+                    SizedBox(
+                      height: size.height * 0.3,
+                    ),
+                  ],
                   Text(
                     movie.title,
                     style: textTheme.headline3,
@@ -94,15 +140,11 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen> {
                   Row(
                     children: [
                       for (var genre in movie.genres) ...[
-                        DecoratedBox(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: Theme.of(context).colorScheme.secondary,
+                        Padding(
+                          padding: EdgeInsets.only(
+                            right: size.width * 0.01,
                           ),
-                          child: Text(
-                            genre,
-                            style: textTheme.bodyText1,
-                          ),
+                          child: GenreCard(title: genre),
                         ),
                       ],
                     ],

@@ -23,6 +23,8 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
   late Timer _timer;
   int secondsPlayed = 0;
 
+  // TODO(freek): add option for auto hiding play controls until user interacts
+
   @override
   void initState() {
     super.initState();
@@ -41,14 +43,21 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       secondsPlayed += 60;
       if (secondsPlayed + _settings.timeWatched >= _movie.duration) {
-        secondsPlayed = -1 * _settings.timeWatched;
+        ref.read(movieSettingsProvider.notifier).updateMovieUserSettings(
+              _settings.copyWith(
+                timeWatched: 0,
+                // TODO(freek): Maybe add property to indicate seen once?
+              ),
+            );
+        Navigator.of(context).pop();
+      } else {
+        ref.read(movieSettingsProvider.notifier).updateMovieUserSettings(
+              _settings.copyWith(
+                timeWatched: _settings.timeWatched + secondsPlayed,
+              ),
+            );
+        setState(() {});
       }
-      ref.read(movieSettingsProvider.notifier).updateMovieUserSettings(
-            _settings.copyWith(
-              timeWatched: _settings.timeWatched + secondsPlayed,
-            ),
-          );
-      setState(() {});
     });
   }
 
