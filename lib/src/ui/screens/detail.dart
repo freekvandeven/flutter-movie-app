@@ -251,6 +251,7 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen> {
                 children: [
                   // backbutton
                   CustomIconButton(
+                    size: 10,
                     icon: Icons.chevron_left,
                     onTap: () async {
                       var navigator = Navigator.of(context);
@@ -260,6 +261,7 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen> {
                   ),
                   // likebutton
                   CustomIconButton(
+                    size: 10,
                     icon: movieSettings.favorite
                         ? Icons.favorite
                         : Icons.favorite_border,

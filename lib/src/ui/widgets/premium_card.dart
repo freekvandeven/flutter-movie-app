@@ -85,6 +85,7 @@ class _PremiumCardState extends State<PremiumCard>
                             const Spacer(),
                             // dismiss button
                             CustomIconButton(
+                              size: 10,
                               onTap: () {
                                 setState(() {
                                   _watchFavoriteDismissed = true;

@@ -134,6 +134,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                   const Spacer(),
                   CustomIconButton(
+                    size: 10,
                     onTap: () {
                       debugPrint('open settings for movie providers');
                     },
