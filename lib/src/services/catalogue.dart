@@ -44,7 +44,7 @@ class MockedMovieCatalogueService extends StateNotifier<List<Movie>>
         bannerImage: 'assets/images/movies/tomb_raider.jpg',
         descriptionImage: 'assets/images/movies',
         trailer: 'https://www.youtube.com/watch?v=8ndhidEmUbI',
-        video: 'assets/video',
+        video: 'https://www.freekvandeven.nl/streams/Tomb_Raider.mp4',
         duration: 7400,
         year: 2022,
         genres: [

@@ -21,6 +21,7 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen> {
   late MovieUserSettings movieSettings;
   bool playerEnabled = true;
   bool isPlaying = false;
+  late YoutubePlayerController _controller;
 
   @override
   void initState() {
@@ -47,8 +48,21 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen> {
     movie = ref
         .read(movieCatalogueProvider)
         .firstWhere((element) => element.title == movieSettings.title);
+    _controller = YoutubePlayerController(
+      initialVideoId: YoutubePlayer.convertUrlToId(movie.trailer) ?? '',
+      flags: const YoutubePlayerFlags(
+        startAt: 1,
+        hideThumbnail: true,
+        autoPlay: true,
+        mute: true,
+        hideControls: true,
+        enableCaption: false,
+        loop: true,
+      ),
+    );
     var size = MediaQuery.of(context).size;
     var textTheme = Theme.of(context).textTheme;
+
     return WillPopScope(
       onWillPop: () async {
         await _onPageExit(movieSettings);
@@ -67,25 +81,14 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen> {
                         YoutubePlayer(
                           onReady: () {
                             Future.delayed(const Duration(seconds: 4), () {
-                              setState(() {
-                                isPlaying = true;
-                              });
+                              if (mounted) {
+                                setState(() {
+                                  isPlaying = true;
+                                });
+                              }
                             });
                           },
-                          controller: YoutubePlayerController(
-                            initialVideoId:
-                                YoutubePlayer.convertUrlToId(movie.trailer) ??
-                                    '',
-                            flags: const YoutubePlayerFlags(
-                              startAt: 1,
-                              hideThumbnail: true,
-                              autoPlay: true,
-                              mute: true,
-                              hideControls: true,
-                              enableCaption: false,
-                              loop: true,
-                            ),
-                          ),
+                          controller: _controller,
                         ),
                       ],
                       Opacity(
@@ -156,10 +159,18 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen> {
                         Row(
                           children: [
                             GestureDetector(
-                              onTap: () {
-                                Navigator.of(context).pushNamed(
+                              onTap: () async {
+                                // pause the trailer
+                                _controller.pause();
+                                var result =
+                                    await Navigator.of(context).pushNamed(
                                   MovieRoute.movieView.route,
                                 );
+                                if (result != null) {
+                                  // resume the trailer
+                                  // _controller.play();
+                                  debugPrint('result: $result');
+                                }
                               },
                               child: DecoratedBox(
                                 decoration: BoxDecoration(

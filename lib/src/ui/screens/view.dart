@@ -7,6 +7,7 @@ import 'package:movie_viewing_app/src/models/models.dart';
 import 'package:movie_viewing_app/src/providers.dart';
 import 'package:movie_viewing_app/src/ui/screens/base.dart';
 import 'package:movie_viewing_app/src/ui/widgets/icon_button.dart';
+import 'package:video_player/video_player.dart';
 
 class MovieViewScreen extends ConsumerStatefulWidget {
   const MovieViewScreen({
@@ -22,6 +23,7 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
   late Movie _movie;
   late Timer _timer;
   int secondsPlayed = 0;
+  late VideoPlayerController? _videoController;
 
   // TODO(freek): add option for auto hiding play controls until user interacts
 
@@ -49,7 +51,7 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
                 // TODO(freek): Maybe add property to indicate seen once?
               ),
             );
-        Navigator.of(context).pop();
+        Navigator.of(context).pop(true);
       } else {
         ref.read(movieSettingsProvider.notifier).updateMovieUserSettings(
               _settings.copyWith(
@@ -59,10 +61,21 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
         setState(() {});
       }
     });
+    if (_movie.video.isNotEmpty) {
+      _videoController = VideoPlayerController.network(
+        _movie.video,
+      )..initialize().then((_) {
+          setState(() {});
+          _videoController?.play();
+        });
+    } else {
+      _videoController = null;
+    }
   }
 
   @override
   void dispose() {
+    _videoController?.dispose();
     floating.dispose();
     _timer.cancel();
     SystemChrome.setPreferredOrientations([
@@ -84,9 +97,17 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
     return BaseScreen(
       child: Stack(
         children: [
-          Container(
-            color: Theme.of(context).colorScheme.primary,
-          ),
+          if (_videoController != null &&
+              _videoController!.value.isInitialized) ...[
+            AspectRatio(
+              aspectRatio: _videoController!.value.aspectRatio,
+              child: VideoPlayer(_videoController!),
+            )
+          ] else ...[
+            Container(
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ],
           Padding(
             padding: EdgeInsets.only(
               left: MediaQuery.of(context).size.width * 0.02,
@@ -102,7 +123,7 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
                   children: [
                     CustomIconButton(
                       onTap: () {
-                        Navigator.of(context).pop();
+                        Navigator.of(context).pop(true);
                       },
                       icon: Icons.close_rounded,
                     ),

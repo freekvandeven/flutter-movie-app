@@ -17,10 +17,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
-
     ref.read(movieCatalogueProvider.notifier).fetchMovies();
     ref.read(actorProvider.notifier).fetchActors();
     ref.read(movieSettingsProvider.notifier).fetchMovieUserSettings();
+    ref.read(configServiceProvider.notifier).loadApplicationSettings();
     // route to home screen after some time
     Future.delayed(const Duration(milliseconds: 1000), () {
       if (mounted) {
