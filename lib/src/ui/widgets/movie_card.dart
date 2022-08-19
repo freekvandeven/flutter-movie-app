@@ -79,10 +79,10 @@ class MovieCard extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         SizedBox(
-                          width: size.width * 0.35,
+                          width: size.width * 0.32,
                           child: Text(
                             movie.title,
                             maxLines: 2,
@@ -91,26 +91,39 @@ class MovieCard extends ConsumerWidget {
                           ),
                         ),
                         // TODO(freek): replace . with a ,
-                        const Spacer(),
-                        Text(
-                          movie.rating.toString(),
-                          style: Theme.of(context).textTheme.headline5,
+
+                        Expanded(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                movie.rating.toString(),
+                                style: Theme.of(context).textTheme.headline6,
+                              ),
+                              SizedBox(
+                                width: size.width * 0.01,
+                              ),
+                              Icon(
+                                Icons.star,
+                                color: Colors.yellow,
+                                size: size.width * 0.04,
+                              ),
+                            ],
+                          ),
                         ),
                         // yellow star icon
-                        Icon(
-                          Icons.star,
-                          color: Colors.yellow,
-                          size: size.width * 0.05,
-                        ),
                       ],
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
+                    Wrap(
+                      alignment: WrapAlignment.start,
                       children: [
                         for (var genre in movie.genres) ...[
                           Padding(
                             padding: EdgeInsets.only(
-                              right: size.width * 0.01,
+                              right: (movie.genres.indexOf(genre) ==
+                                      movie.genres.length - 1)
+                                  ? 0
+                                  : size.width * 0.005,
                             ),
                             child: GenreCard(title: genre),
                           ),

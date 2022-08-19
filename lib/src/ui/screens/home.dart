@@ -94,6 +94,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             .take(8)
                             .map(
                               (movie) => MovieCard(
+                                scale: 1.0,
                                 onTap: (context) {
                                   Navigator.of(context).pushNamed(
                                     MovieRoute.movieDetail.route,
