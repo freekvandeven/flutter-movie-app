@@ -128,15 +128,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // profile button
-                  IconButton(
-                    icon: const Icon(Icons.person),
-                    onPressed: () {},
+                  CustomIconButton(
+                    icon: Icons.person,
+                    size: size.width * 0.02,
+                    onTap: () async {
+                      // change setting for autohidevideocontrols
+                      var currentSettings = ref.read(configServiceProvider);
+                      await ref
+                          .read(configServiceProvider.notifier)
+                          .saveApplicationSettings(
+                            currentSettings.copyWidth(
+                              autoHideVideoControls:
+                                  !currentSettings.autoHideVideoControls,
+                            ),
+                          );
+                    },
                   ),
                   const Spacer(),
                   CustomIconButton(
-                    size: 10,
-                    onTap: () {
+                    size: size.width * 0.02,
+                    onTap: () async {
                       debugPrint('open settings for movie providers');
+                      var currentSettings = ref.read(configServiceProvider);
+                      await ref
+                          .read(configServiceProvider.notifier)
+                          .saveApplicationSettings(
+                            currentSettings.copyWidth(
+                              trailersEnabled: !currentSettings.trailersEnabled,
+                            ),
+                          );
                     },
                     icon: Icons.menu,
                   ),

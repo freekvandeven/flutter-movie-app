@@ -28,4 +28,14 @@ class ApplicationConfiguration {
       'autoHideVideoControls': autoHideVideoControls,
     };
   }
+
+  ApplicationConfiguration copyWidth({
+    bool? trailersEnabled,
+    bool? autoHideVideoControls,
+  }) =>
+      ApplicationConfiguration(
+        trailersEnabled: trailersEnabled ?? this.trailersEnabled,
+        autoHideVideoControls:
+            autoHideVideoControls ?? this.autoHideVideoControls,
+      );
 }
