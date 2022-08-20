@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:floating/floating.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:movie_viewing_app/src/models/models.dart';
 import 'package:movie_viewing_app/src/providers.dart';
 import 'package:movie_viewing_app/src/ui/screens/base.dart';
 import 'package:movie_viewing_app/src/ui/widgets/icon_button.dart';
+import 'package:movie_viewing_app/src/ui/widgets/slider_thumb.dart';
 import 'package:video_player/video_player.dart';
 import 'package:wakelock/wakelock.dart';
 
@@ -75,6 +77,8 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     var iconSize = size.width * 0.02;
+    var playTime =
+        '${_convertSecondsToString(secondsPlayed)}/${_convertSecondsToString(_movie.duration)}';
     // TODO(freek): refactor this to pipstream to detect pip changes
     _checkPipEnabled();
 
@@ -84,6 +88,7 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
         behavior: HitTestBehavior.translucent,
         onTap: _setAutoHideTimer,
         child: Stack(
+          alignment: AlignmentDirectional.center,
           children: [
             GestureDetector(
               behavior: HitTestBehavior.translucent,
@@ -102,8 +107,8 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
               padding: EdgeInsets.only(
                 left: MediaQuery.of(context).size.width * 0.02,
                 right: MediaQuery.of(context).size.width * 0.02,
-                top: MediaQuery.of(context).size.height * 0.015,
-                bottom: MediaQuery.of(context).size.height * 0.03,
+                top: MediaQuery.of(context).size.height * 0.030,
+                bottom: MediaQuery.of(context).size.height * 0.045,
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -165,40 +170,33 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
                     ),
                   ],
                   if (!hideControls && !pipMode) ...[
-                    DecoratedBox(
-                      // grey background with a bit of transparancy
+                    Container(
+                      clipBehavior: Clip.hardEdge,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
                         // white grey transparant background
-                        color: Colors.white.withOpacity(0.2),
+                        color: const Color.fromARGB(255, 125, 122, 122)
+                            .withOpacity(0.15),
+                        // add blur effect
                       ),
-                      child: Padding(
-                        padding: EdgeInsets.all(
-                          MediaQuery.of(context).size.width * 0.01,
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(
+                          sigmaX: size.width * 0.008,
+                          sigmaY: size.width * 0.008,
                         ),
-                        child: Row(
-                          children: [
-                            CustomIconButton(
-                              size: iconSize,
-                              onTap: () {
-                                var config = ref.read(configServiceProvider);
-                                ref
-                                    .read(configServiceProvider.notifier)
-                                    .saveApplicationSettings(
-                                      config.copyWidth(
-                                        highQualityVideo:
-                                            !config.highQualityVideo,
-                                      ),
-                                    );
-                              },
-                              icon: Icons.high_quality_outlined,
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(
-                                left: size.width * 0.01,
-                                right: size.width * 0.02,
-                              ),
-                              child: CustomIconButton(
+                        // blendMode: BlendMode.srcOver,
+                        child: Padding(
+                          padding: EdgeInsets.all(
+                            MediaQuery.of(context).size.width * 0.01,
+                          ),
+                          child: Row(
+                            children: [
+                              CustomIconButton(
+                                alpha: ref
+                                        .read(configServiceProvider)
+                                        .highQualityVideo
+                                    ? 100
+                                    : null,
                                 size: iconSize,
                                 onTap: () {
                                   var config = ref.read(configServiceProvider);
@@ -206,43 +204,108 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
                                       .read(configServiceProvider.notifier)
                                       .saveApplicationSettings(
                                         config.copyWidth(
-                                          closedCaptionsEnabled:
-                                              !config.closedCaptionsEnabled,
+                                          highQualityVideo:
+                                              !config.highQualityVideo,
                                         ),
                                       );
                                 },
-                                icon: Icons.closed_caption_outlined,
+                                icon: Icons.high_quality_outlined,
                               ),
-                            ),
-                            // video progress bar
-                            Expanded(
-                              // TODO(freek): make a custom progress bar
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  left: size.width * 0.01,
+                                  right: size.width * 0.02,
+                                ),
+                                child: CustomIconButton(
+                                  size: iconSize,
+                                  alpha: ref
+                                          .read(configServiceProvider)
+                                          .closedCaptionsEnabled
+                                      ? 100
+                                      : null,
+                                  onTap: () {
+                                    var config =
+                                        ref.read(configServiceProvider);
+                                    ref
+                                        .read(configServiceProvider.notifier)
+                                        .saveApplicationSettings(
+                                          config.copyWidth(
+                                            closedCaptionsEnabled:
+                                                !config.closedCaptionsEnabled,
+                                          ),
+                                        );
+                                  },
+                                  icon: Icons.closed_caption_outlined,
+                                ),
+                              ),
+                              // video progress bar
+                              Expanded(
+                                // TODO(freek): make a custom progress bar
 
-                              child: Slider(
-                                label: '${secondsPlayed ~/ 60}:'
-                                    '${secondsPlayed % 60}',
-                                value: secondsPlayed / _movie.duration,
-                                onChanged: _updateVideoTime,
-                                inactiveColor: Colors.white.withOpacity(0.3),
-                                activeColor:
-                                    Theme.of(context).colorScheme.primary,
-                                thumbColor: Colors.white,
+                                child: Stack(
+                                  alignment: AlignmentDirectional.bottomCenter,
+                                  children: [
+                                    SliderTheme(
+                                      data: SliderThemeData(
+                                        activeTrackColor: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                        trackHeight: size.height * 0.12,
+                                        inactiveTrackColor:
+                                            Colors.grey.withAlpha(60),
+                                        thumbColor: Colors.white,
+                                        overlayColor:
+                                            Colors.black.withOpacity(0.1),
+                                        trackShape:
+                                            const RoundedRectSliderTrackShape(),
+                                        thumbShape: PointyCircleThumbShape(
+                                          sliderBarSize: size.height * 0.12,
+                                          thumbRadius: size.width * 0.007,
+                                        ),
+                                        overlayShape: RoundSliderOverlayShape(
+                                          overlayRadius: size.width * 0.02,
+                                        ),
+                                      ),
+                                      child: Slider(
+                                        value: secondsPlayed / _movie.duration,
+                                        onChanged: _updateVideoTime,
+                                      ),
+                                    ),
+                                    Container(
+                                      alignment: Alignment.bottomRight,
+                                      padding: EdgeInsets.only(
+                                        right: size.width * 0.04,
+                                        bottom: size.height * 0.005,
+                                      ),
+                                      child: Text(
+                                        playTime,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headline6!
+                                            .copyWith(
+                                              fontSize: size.width * 0.018,
+                                              color: Colors.white,
+                                            ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            PiPSwitcher(
-                              childWhenEnabled: CustomIconButton(
-                                size: iconSize,
-                                onTap: () {},
-                                icon: Icons.expand_outlined,
+                              PiPSwitcher(
+                                childWhenEnabled: CustomIconButton(
+                                  size: iconSize,
+                                  onTap: () {},
+                                  icon: Icons.expand_outlined,
+                                ),
+                                childWhenDisabled: CustomIconButton(
+                                  size: iconSize,
+                                  onTap: _enablePip,
+                                  icon: Icons.picture_in_picture,
+                                ),
+                                floating: floating,
                               ),
-                              childWhenDisabled: CustomIconButton(
-                                size: iconSize,
-                                onTap: _enablePip,
-                                icon: Icons.picture_in_picture,
-                              ),
-                              floating: floating,
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -268,6 +331,12 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
         ),
       ),
     );
+  }
+
+  String _convertSecondsToString(int seconds) {
+    return '${(seconds >= 3600) ? ('${seconds ~/ 3600}:') : ''}'
+        '${(seconds % 3600 ~/ 60).toString().padLeft(2, '0')}'
+        ':${(seconds % 60).toString().padLeft(2, '0')}';
   }
 
   void _setVideoUpdateTimer() {
