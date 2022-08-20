@@ -19,6 +19,7 @@ class Movie {
     required this.descriptionImage,
     required this.trailer,
     required this.video,
+    required this.subtitleFile,
     required this.duration,
     required this.year,
     required this.genres,
@@ -33,6 +34,7 @@ class Movie {
   final String descriptionImage;
   final String trailer;
   final String video;
+  final String subtitleFile;
   final int duration;
   final int year;
   final List<String> genres;

@@ -21,6 +21,8 @@ class MockedMovieCatalogueService extends StateNotifier<List<Movie>>
         descriptionImage: 'assets/images/movies/secrets_dumbledore_detail.jpg',
         trailer: 'https://www.youtube.com/watch?v=Y9dr2zw-TXQ',
         video: 'https://www.freekvandeven.nl/streams/secrets_dumbledore.mp4',
+        subtitleFile:
+            'https://www.freekvandeven.nl/streams/secrets_dumbledore_english.srt',
         duration: 8559,
         year: 2022,
         genres: ['Fantastic', 'Action'],
@@ -45,6 +47,8 @@ class MockedMovieCatalogueService extends StateNotifier<List<Movie>>
         descriptionImage: 'assets/images/movies/tomb_raider_detail.jpg',
         trailer: 'https://www.youtube.com/watch?v=8ndhidEmUbI',
         video: 'https://www.freekvandeven.nl/streams/tomb_raider.mp4',
+        subtitleFile:
+            'https://www.freekvandeven.nl/streams/tomb_raider_english.srt',
         duration: 7070,
         year: 2022,
         genres: [
@@ -66,6 +70,8 @@ class MockedMovieCatalogueService extends StateNotifier<List<Movie>>
         descriptionImage: 'assets/images/movies/morbius_detail.jpg',
         trailer: 'https://www.youtube.com/watch?v=oZ6iiRrz1SY',
         video: 'https://www.freekvandeven.nl/streams/morbius.mp4',
+        subtitleFile:
+            'https://www.freekvandeven.nl/streams/morbius_english.srt',
         duration: 6249,
         year: 2022,
         genres: ['Fantastic', 'Thriller'],
@@ -84,6 +90,8 @@ class MockedMovieCatalogueService extends StateNotifier<List<Movie>>
         descriptionImage: 'assets/images/movies/jungle_cruise_detail.jpg',
         trailer: 'https://www.youtube.com/watch?v=f_HvoipFcA8',
         video: 'https://www.freekvandeven.nl/streams/jungle_cruise.mp4',
+        subtitleFile:
+            'https://www.freekvandeven.nl/streams/jungle_cruise_english.srt',
         duration: 7639,
         year: 2022,
         genres: [

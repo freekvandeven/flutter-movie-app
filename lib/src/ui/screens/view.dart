@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:floating/floating.dart';
 import 'package:flutter/material.dart';
@@ -94,17 +95,17 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
                       color: Theme.of(context).colorScheme.background,
                     ),
             ),
-            if (!hideControls && !pipMode) ...[
-              Padding(
-                padding: EdgeInsets.only(
-                  left: MediaQuery.of(context).size.width * 0.02,
-                  right: MediaQuery.of(context).size.width * 0.02,
-                  top: MediaQuery.of(context).size.height * 0.015,
-                  bottom: MediaQuery.of(context).size.height * 0.03,
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
+            Padding(
+              padding: EdgeInsets.only(
+                left: MediaQuery.of(context).size.width * 0.02,
+                right: MediaQuery.of(context).size.width * 0.02,
+                top: MediaQuery.of(context).size.height * 0.015,
+                bottom: MediaQuery.of(context).size.height * 0.03,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  if (!hideControls && !pipMode) ...[
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -145,6 +146,22 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
                         ),
                       ],
                     ),
+                  ],
+                  const Spacer(),
+                  if (_videoController != null &&
+                      ref
+                          .read(configServiceProvider)
+                          .closedCaptionsEnabled) ...[
+                    ClosedCaption(
+                      text: _videoController!.value.caption.text,
+                      textStyle:
+                          Theme.of(context).textTheme.headline4!.copyWith(
+                                fontSize: size.width * 0.03,
+                                color: Colors.white,
+                              ),
+                    ),
+                  ],
+                  if (!hideControls && !pipMode) ...[
                     DecoratedBox(
                       // grey background with a bit of transparancy
                       decoration: BoxDecoration(
@@ -181,7 +198,15 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
                               child: CustomIconButton(
                                 size: iconSize,
                                 onTap: () {
-                                  debugPrint('Toggle closed caption');
+                                  var config = ref.read(configServiceProvider);
+                                  ref
+                                      .read(configServiceProvider.notifier)
+                                      .saveApplicationSettings(
+                                        config.copyWidth(
+                                          closedCaptionsEnabled:
+                                              !config.closedCaptionsEnabled,
+                                        ),
+                                      );
                                 },
                                 icon: Icons.closed_caption_outlined,
                               ),
@@ -217,11 +242,11 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
                           ],
                         ),
                       ),
-                    )
+                    ),
                   ],
-                ),
+                ],
               ),
-            ],
+            ),
             if (_videoController != null &&
                 !_videoController!.value.isPlaying) ...[
               // Play button
@@ -294,10 +319,25 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
     }
   }
 
+  Future<ClosedCaptionFile> _getSubtitle(String url) async {
+    if (url.isEmpty) {
+      return SubRipCaptionFile('');
+    }
+    var file = NetworkAssetBundle(Uri(path: url));
+    var data = await file.load(url);
+    return SubRipCaptionFile(
+      utf8.decode(
+        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
+      ),
+    );
+  }
+
   void _initializeVideo() {
     if (_movie.video.isNotEmpty) {
+      // add closed caption file to the video player
       _videoController = VideoPlayerController.network(
         _movie.video,
+        closedCaptionFile: _getSubtitle(_movie.subtitleFile),
         videoPlayerOptions: VideoPlayerOptions(),
       )..initialize().then((_) {
           setState(() {});
