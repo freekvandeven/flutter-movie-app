@@ -133,23 +133,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     icon: Icons.person,
                     size: size.width * 0.02,
                     onTap: () async {
-                      // change setting for autohidevideocontrols
-                      var currentSettings = ref.read(configServiceProvider);
-                      await ref
-                          .read(configServiceProvider.notifier)
-                          .saveApplicationSettings(
-                            currentSettings.copyWidth(
-                              autoHideVideoControls:
-                                  !currentSettings.autoHideVideoControls,
-                            ),
-                          );
+                      // TODO(freek): implement profile button
                     },
                   ),
                   const Spacer(),
                   CustomIconButton(
                     size: size.width * 0.02,
                     onTap: () async {
-                      debugPrint('open settings for movie providers');
+                      // TODO(freek): add menu for movie provider filtering
+                      var scaffold = ScaffoldMessenger.of(context);
                       var currentSettings = ref.read(configServiceProvider);
                       await ref
                           .read(configServiceProvider.notifier)
@@ -158,6 +150,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               trailersEnabled: !currentSettings.trailersEnabled,
                             ),
                           );
+                      scaffold.showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Trailers are '
+                            '${currentSettings.trailersEnabled ? 'off' : 'on'}',
+                          ),
+                        ),
+                      );
                     },
                     icon: Icons.menu,
                   ),

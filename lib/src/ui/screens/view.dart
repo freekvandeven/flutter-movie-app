@@ -75,6 +75,7 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
     _checkPipEnabled();
 
     return BaseScreen(
+      background: Colors.black,
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: _setAutoHideTimer,

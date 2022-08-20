@@ -80,7 +80,7 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen> {
                       if (playerEnabled) ...[
                         YoutubePlayer(
                           onReady: () {
-                            Future.delayed(const Duration(seconds: 4), () {
+                            Future.delayed(const Duration(seconds: 5), () {
                               if (mounted) {
                                 setState(() {
                                   isPlaying = true;
