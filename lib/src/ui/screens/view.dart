@@ -29,7 +29,7 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
   int timerUpdateInterval = 1;
   late VideoPlayerController? _videoController;
 
-  // TODO(freek): add option for auto hiding play controls until user interacts
+  // TODO(freek): add video sound control
 
   @override
   void initState() {
@@ -46,64 +46,9 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
         .firstWhere((element) => element.title == _settings.title);
     secondsPlayed = _settings.timeWatched;
 
-    // start timer to update time watched every minute
-    _updateTimer =
-        Timer.periodic(Duration(seconds: timerUpdateInterval), (timer) {
-      if (_videoController == null) {
-        secondsPlayed += 60;
-      } else {
-        secondsPlayed += timerUpdateInterval;
-        _videoController!.position.then((value) {
-          var playedSeconds = value?.inSeconds ?? 0;
-          secondsPlayed = (playedSeconds != 0) ? playedSeconds : secondsPlayed;
-        });
-      }
-      if (secondsPlayed >= _movie.duration) {
-        ref.read(movieSettingsProvider.notifier).updateMovieUserSettings(
-              _settings.copyWith(
-                timeWatched: 0,
-                // TODO(freek): Maybe add property to indicate seen once?
-              ),
-            );
-        _videoController?.pause();
-        Navigator.of(context).pop(true);
-      } else {
-        ref.read(movieSettingsProvider.notifier).updateMovieUserSettings(
-              _settings.copyWith(
-                timeWatched: secondsPlayed,
-              ),
-            );
-        setState(() {});
-      }
-    });
-
-    if (_movie.video.isNotEmpty) {
-      _videoController = VideoPlayerController.network(
-        _movie.video,
-        videoPlayerOptions: VideoPlayerOptions(),
-      )..initialize().then((_) {
-          setState(() {});
-          _videoController?.seekTo(Duration(seconds: secondsPlayed));
-          _videoController?.play();
-        });
-    } else {
-      _videoController = null;
-    }
-
+    _setVideoUpdateTimer();
+    _initializeVideo();
     _setAutoHideTimer();
-  }
-
-  void _setAutoHideTimer() {
-    setState(() {
-      hideControls = false;
-    });
-    _controlHideTimer = Timer(const Duration(seconds: 10), () {
-      if (mounted) {
-        setState(() {
-          hideControls = true;
-        });
-      }
-    });
   }
 
   @override
@@ -122,87 +67,32 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
     super.dispose();
   }
 
-  Future<void> enablePip() async {
-    var status = await floating.enable(const Rational.landscape());
-    debugPrint('PiP enabled? $status');
-    pipMode = true;
-    setState(() {});
-  }
-
-  void _updateVideoTime(double value) {
-    secondsPlayed = (value * _movie.duration).toInt();
-    ref.read(movieSettingsProvider.notifier).updateMovieUserSettings(
-          _settings.copyWith(timeWatched: secondsPlayed),
-        );
-    _videoController?.seekTo(Duration(seconds: secondsPlayed));
-    setState(() {});
-  }
-
-  Future<void> _checkPipEnabled() async {
-    var status = await floating.pipStatus;
-    if (pipMode && status == PiPStatus.disabled) {
-      setState(() {
-        pipMode = false;
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     var iconSize = size.width * 0.02;
     // TODO(freek): refactor this to pipstream to detect pip changes
     _checkPipEnabled();
+
     return BaseScreen(
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
-        onTap: () {
-          debugPrint('page tapped');
-          _setAutoHideTimer();
-        },
+        onTap: _setAutoHideTimer,
         child: Stack(
           children: [
-            if (_videoController != null &&
-                _videoController!.value.isInitialized) ...[
-              GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                onTap: () {
-                  debugPrint('video tapped');
-                  if (!hideControls) {
-                    if (_videoController != null &&
-                        _videoController!.value.isPlaying) {
-                      _videoController!.pause();
-                    } else {
-                      _videoController!.play();
-                    }
-                  }
-                  _setAutoHideTimer();
-                },
-                child: AspectRatio(
-                  aspectRatio: _videoController!.value.aspectRatio,
-                  child: VideoPlayer(_videoController!),
-                ),
-              )
-            ] else ...[
-              GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                onTap: () {
-                  debugPrint('image tapped');
-                  if (!hideControls) {
-                    if (_videoController != null &&
-                        _videoController!.value.isPlaying) {
-                      _videoController!.pause();
-                    } else {
-                      _videoController!.play();
-                    }
-                  }
-                  _setAutoHideTimer();
-                },
-                child: Container(
-                  color: Theme.of(context).colorScheme.background,
-                ),
-              ),
-            ],
+            GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: _onVideoTap,
+              child: (_videoController != null &&
+                      _videoController!.value.isInitialized)
+                  ? AspectRatio(
+                      aspectRatio: _videoController!.value.aspectRatio,
+                      child: VideoPlayer(_videoController!),
+                    )
+                  : Container(
+                      color: Theme.of(context).colorScheme.background,
+                    ),
+            ),
             if (!hideControls && !pipMode) ...[
               Padding(
                 padding: EdgeInsets.only(
@@ -219,15 +109,36 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
                       children: [
                         CustomIconButton(
                           size: iconSize,
-                          onTap: () {
-                            Navigator.of(context).pop(true);
-                          },
+                          onTap: () => Navigator.of(context).pop(true),
                           icon: Icons.close_rounded,
                         ),
                         CustomIconButton(
                           size: iconSize,
                           onTap: () {
-                            debugPrint('open video settings');
+                            var config = ref.read(configServiceProvider);
+                            var newConfig = config.copyWidth(
+                              autoHideVideoControls:
+                                  !config.autoHideVideoControls,
+                            );
+                            ref
+                                .read(configServiceProvider.notifier)
+                                .saveApplicationSettings(
+                                  newConfig,
+                                );
+                            // show a message to indicate the settings
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Auto hide video controls: '
+                                  '${!config.autoHideVideoControls}',
+                                ),
+                              ),
+                            );
+                            if (newConfig.autoHideVideoControls) {
+                              setState(() {
+                                hideControls = true;
+                              });
+                            }
                           },
                           icon: Icons.settings_outlined,
                         ),
@@ -249,7 +160,15 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
                             CustomIconButton(
                               size: iconSize,
                               onTap: () {
-                                debugPrint('Change video quality');
+                                var config = ref.read(configServiceProvider);
+                                ref
+                                    .read(configServiceProvider.notifier)
+                                    .saveApplicationSettings(
+                                      config.copyWidth(
+                                        highQualityVideo:
+                                            !config.highQualityVideo,
+                                      ),
+                                    );
                               },
                               icon: Icons.high_quality_outlined,
                             ),
@@ -289,7 +208,7 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
                               ),
                               childWhenDisabled: CustomIconButton(
                                 size: iconSize,
-                                onTap: enablePip,
+                                onTap: _enablePip,
                                 icon: Icons.picture_in_picture,
                               ),
                               floating: floating,
@@ -303,12 +222,16 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
               ),
             ],
             if (_videoController != null &&
-                _videoController!.value.isPlaying) ...[
+                !_videoController!.value.isPlaying) ...[
               // Play button
-              Center(
-                child: Icon(
-                  Icons.play_arrow,
-                  size: iconSize,
+              GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: _onVideoTap,
+                child: Center(
+                  child: Icon(
+                    Icons.pause_circle_filled,
+                    size: size.width * 0.1,
+                  ),
                 ),
               ),
             ]
@@ -316,5 +239,100 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
         ),
       ),
     );
+  }
+
+  void _setVideoUpdateTimer() {
+    _updateTimer =
+        Timer.periodic(Duration(seconds: timerUpdateInterval), (timer) {
+      if (_videoController == null) {
+        secondsPlayed += 60;
+      } else {
+        secondsPlayed += timerUpdateInterval;
+        _videoController!.position.then((value) {
+          var playedSeconds = value?.inSeconds ?? 0;
+          secondsPlayed = (playedSeconds != 0) ? playedSeconds : secondsPlayed;
+        });
+      }
+      if (secondsPlayed >= _movie.duration) {
+        ref.read(movieSettingsProvider.notifier).updateMovieUserSettings(
+              _settings.copyWith(
+                timeWatched: 0,
+                // TODO(freek): Maybe add property to indicate seen once?
+              ),
+            );
+        _videoController?.pause();
+        Navigator.of(context).pop(true);
+      } else {
+        ref.read(movieSettingsProvider.notifier).updateMovieUserSettings(
+              _settings.copyWith(
+                timeWatched: secondsPlayed,
+              ),
+            );
+        setState(() {});
+      }
+    });
+  }
+
+  void _onVideoTap() {
+    if (!hideControls) {
+      if (_videoController != null && _videoController!.value.isPlaying) {
+        _videoController!.pause();
+      } else {
+        _videoController!.play();
+      }
+    }
+    _setAutoHideTimer();
+  }
+
+  Future<void> _checkPipEnabled() async {
+    var status = await floating.pipStatus;
+    if (pipMode && status == PiPStatus.disabled) {
+      setState(() {
+        pipMode = false;
+      });
+    }
+  }
+
+  void _initializeVideo() {
+    if (_movie.video.isNotEmpty) {
+      _videoController = VideoPlayerController.network(
+        _movie.video,
+        videoPlayerOptions: VideoPlayerOptions(),
+      )..initialize().then((_) {
+          setState(() {});
+          _videoController?.seekTo(Duration(seconds: secondsPlayed));
+          _videoController?.play();
+        });
+    } else {
+      _videoController = null;
+    }
+  }
+
+  Future<void> _enablePip() async {
+    await floating.enable(const Rational.landscape());
+    pipMode = true;
+    setState(() {});
+  }
+
+  void _updateVideoTime(double value) {
+    secondsPlayed = (value * _movie.duration).toInt();
+    ref.read(movieSettingsProvider.notifier).updateMovieUserSettings(
+          _settings.copyWith(timeWatched: secondsPlayed),
+        );
+    _videoController?.seekTo(Duration(seconds: secondsPlayed));
+    setState(() {});
+  }
+
+  void _setAutoHideTimer() {
+    setState(() {
+      hideControls = false;
+    });
+    _controlHideTimer = Timer(const Duration(seconds: 10), () {
+      if (mounted && ref.read(configServiceProvider).autoHideVideoControls) {
+        setState(() {
+          hideControls = true;
+        });
+      }
+    });
   }
 }
