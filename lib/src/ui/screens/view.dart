@@ -9,6 +9,7 @@ import 'package:movie_viewing_app/src/providers.dart';
 import 'package:movie_viewing_app/src/ui/screens/base.dart';
 import 'package:movie_viewing_app/src/ui/widgets/icon_button.dart';
 import 'package:video_player/video_player.dart';
+import 'package:wakelock/wakelock.dart';
 
 class MovieViewScreen extends ConsumerStatefulWidget {
   const MovieViewScreen({
@@ -50,10 +51,12 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
     _setVideoUpdateTimer();
     _initializeVideo();
     _setAutoHideTimer();
+    Wakelock.enable();
   }
 
   @override
   void dispose() {
+    Wakelock.disable();
     _videoController?.pause();
     _videoController?.dispose();
     floating.dispose();
