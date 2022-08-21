@@ -11,16 +11,19 @@ class GenreCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: MediaQuery.of(context).size.width * 0.02,
-        vertical: MediaQuery.of(context).size.height * 0.002,
+        horizontal: MediaQuery.of(context).size.width * 0.016,
+        vertical: MediaQuery.of(context).size.height * 0.004,
       ),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.secondary,
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         title,
-        style: Theme.of(context).textTheme.headline6,
+        style: Theme.of(context).textTheme.headline6!.copyWith(
+              fontSize: MediaQuery.of(context).size.width * 0.035,
+              fontWeight: FontWeight.w400,
+            ),
       ),
     );
   }

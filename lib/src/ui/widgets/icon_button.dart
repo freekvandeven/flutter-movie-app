@@ -7,6 +7,8 @@ class CustomIconButton extends StatelessWidget {
     required this.onTap,
     required this.icon,
     required this.size,
+    this.blurFactor = 0.003,
+    this.iconScale = 1.8,
     this.alpha,
     Key? key,
   }) : super(key: key);
@@ -14,6 +16,9 @@ class CustomIconButton extends StatelessWidget {
   final Function() onTap;
   final IconData icon;
   final double size;
+  final double iconScale;
+  final double blurFactor;
+
   final int? alpha;
 
   @override
@@ -26,15 +31,15 @@ class CustomIconButton extends StatelessWidget {
       ),
       child: BackdropFilter(
         filter: ImageFilter.blur(
-          sigmaX: MediaQuery.of(context).size.width * 0.003,
-          sigmaY: MediaQuery.of(context).size.width * 0.003,
+          sigmaX: MediaQuery.of(context).size.width * blurFactor,
+          sigmaY: MediaQuery.of(context).size.width * blurFactor,
         ),
         child: IconButton(
           padding: EdgeInsets.all(size / 2),
           onPressed: onTap,
           icon: Icon(
             icon,
-            size: size * 1.8,
+            size: size * iconScale,
           ),
         ),
       ),

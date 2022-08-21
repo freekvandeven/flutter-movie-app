@@ -14,7 +14,7 @@ class MockedMovieCatalogueService extends StateNotifier<List<Movie>>
   Future<void> fetchMovies() async {
     state = [
       const Movie(
-        title: 'Fantastic beasts: The Secrets of Dumbledore',
+        title: 'Fantastic Beasts: The Secrets of Dumbledore',
         description: 'Professor Albus Dumbledore must assign Newt Scamander '
             'and his fellow partners...',
         bannerImage: 'assets/images/movies/secrets_dumbledore.jpg',
@@ -97,6 +97,7 @@ class MockedMovieCatalogueService extends StateNotifier<List<Movie>>
         genres: [
           'Adventure',
           'Fantastic',
+          'Action',
         ],
         actors: [],
         rating: 7.1,
