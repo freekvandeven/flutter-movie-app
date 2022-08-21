@@ -42,4 +42,12 @@ class Movie {
   final double rating;
   final bool popular;
   final bool upcoming;
+
+  bool movieStarted(int seconds) => seconds > 120 && seconds < duration - 240;
+
+  static String movieTimeAsString(int seconds) {
+    return '${(seconds >= 3600) ? ('${seconds ~/ 3600}:') : ''}'
+        '${(seconds % 3600 ~/ 60).toString().padLeft(2, '0')}'
+        ':${(seconds % 60).toString().padLeft(2, '0')}';
+  }
 }

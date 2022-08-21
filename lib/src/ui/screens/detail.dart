@@ -226,8 +226,7 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen>
                                     );
                                     if (result != null) {
                                       // resume the trailer
-                                      // _controller.play();
-                                      debugPrint('result: $result');
+                                      _controller.play();
                                     }
                                   },
                                   child: Container(

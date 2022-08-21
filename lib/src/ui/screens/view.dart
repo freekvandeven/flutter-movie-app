@@ -78,7 +78,7 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
     var size = MediaQuery.of(context).size;
     var iconSize = size.width * 0.02;
     var playTime =
-        '${_convertSecondsToString(secondsPlayed)}/${_convertSecondsToString(_movie.duration)}';
+        '${Movie.movieTimeAsString(secondsPlayed)}/${Movie.movieTimeAsString(_movie.duration)}';
     // TODO(freek): refactor this to pipstream to detect pip changes
     _checkPipEnabled();
 
@@ -331,12 +331,6 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
         ),
       ),
     );
-  }
-
-  String _convertSecondsToString(int seconds) {
-    return '${(seconds >= 3600) ? ('${seconds ~/ 3600}:') : ''}'
-        '${(seconds % 3600 ~/ 60).toString().padLeft(2, '0')}'
-        ':${(seconds % 60).toString().padLeft(2, '0')}';
   }
 
   void _setVideoUpdateTimer() {
