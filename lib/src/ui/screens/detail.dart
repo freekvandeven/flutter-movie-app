@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:movie_viewing_app/src/models/models.dart';
 import 'package:movie_viewing_app/src/movieroute.dart';
@@ -16,17 +18,59 @@ class MovieDetailScreen extends ConsumerStatefulWidget {
   ConsumerState<MovieDetailScreen> createState() => _MovieDetailScreenState();
 }
 
-class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen> {
-  late Movie movie;
-  late MovieUserSettings movieSettings;
-  bool playerEnabled = true;
-  bool isPlaying = false;
+class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen>
+    with SingleTickerProviderStateMixin {
+  late Movie _movie;
+  late MovieUserSettings _movieSettings;
+  bool _playerEnabled = true;
+  bool _isPlaying = false;
   late YoutubePlayerController _controller;
+  late final AnimationController _animationController;
+  late final Animation<double> _animation;
+  bool _secondAnimation = false;
 
   @override
   void initState() {
     super.initState();
-    playerEnabled = ref.read(configServiceProvider).trailersEnabled;
+    _playerEnabled = ref.read(configServiceProvider).trailersEnabled;
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+    _animation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.decelerate),
+    )..addListener(() {
+        // once the animation is done, set the second animation to true
+        if (_animation.status == AnimationStatus.completed &&
+            !_secondAnimation) {
+          _secondAnimation = true;
+          _animationController
+            ..reset()
+            ..forward();
+        }
+        setState(() {});
+      });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _animationController.forward();
+      _controller = YoutubePlayerController(
+        initialVideoId: YoutubePlayer.convertUrlToId(_movie.trailer) ?? '',
+        flags: const YoutubePlayerFlags(
+          hideThumbnail: true,
+          autoPlay: true,
+          mute: true,
+          hideControls: true,
+          enableCaption: false,
+          loop: true,
+        ),
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    _controller.dispose();
+    super.dispose();
   }
 
   Future<void> _onPageExit(MovieUserSettings settings) async {
@@ -37,35 +81,23 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // prevent Bad State during settings update and screen pop
     var settings =
         ref.watch(movieSettingsProvider).where((element) => element.selected);
     if (settings.isEmpty) {
       return Container();
     } else {
-      movieSettings = settings.first;
+      _movieSettings = settings.first;
     }
-    movie = ref
+    _movie = ref
         .read(movieCatalogueProvider)
-        .firstWhere((element) => element.title == movieSettings.title);
-    _controller = YoutubePlayerController(
-      initialVideoId: YoutubePlayer.convertUrlToId(movie.trailer) ?? '',
-      flags: const YoutubePlayerFlags(
-        startAt: 1,
-        hideThumbnail: true,
-        autoPlay: true,
-        mute: true,
-        hideControls: true,
-        enableCaption: false,
-        loop: true,
-      ),
-    );
+        .firstWhere((element) => element.title == _movieSettings.title);
+
     var size = MediaQuery.of(context).size;
     var textTheme = Theme.of(context).textTheme;
 
     return WillPopScope(
       onWillPop: () async {
-        await _onPageExit(movieSettings);
+        await _onPageExit(_movieSettings);
         return true;
       },
       child: BaseScreen(
@@ -77,13 +109,13 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen> {
                   // show movie poster for the first few seconds
                   Stack(
                     children: [
-                      if (playerEnabled) ...[
+                      if (_playerEnabled) ...[
                         YoutubePlayer(
                           onReady: () {
                             Future.delayed(const Duration(seconds: 5), () {
                               if (mounted) {
                                 setState(() {
-                                  isPlaying = true;
+                                  _isPlaying = true;
                                 });
                               }
                             });
@@ -92,12 +124,12 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen> {
                         ),
                       ],
                       Opacity(
-                        opacity: isPlaying ? 0 : 0.99,
+                        opacity: _isPlaying ? 0 : 0.99,
                         child: SizedBox(
                           width: size.width,
                           height: size.height * 0.30,
                           child: Image.asset(
-                            movie.descriptionImage,
+                            _movie.descriptionImage,
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -110,43 +142,64 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen> {
                     ),
                     child: Column(
                       children: [
-                        Text(
-                          movie.title,
-                          style: textTheme.headline3,
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: SizedBox(
+                            width: size.width * 0.7,
+                            child: Text(
+                              _movie.title,
+                              style: textTheme.headline1!.copyWith(
+                                fontSize: size.width * 0.08,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            vertical: size.height * 0.02,
+                          ),
+                          child: Row(
+                            children: [
+                              Text(
+                                // replace . with ,
+                                _movie.rating.toStringAsFixed(1).replaceAll(
+                                      '.',
+                                      ',',
+                                    ),
+                                style: textTheme.headline4,
+                              ),
+                              Icon(
+                                Icons.star_rate_rounded,
+                                color: textTheme.headline4!.color,
+                              ),
+                              Text(
+                                ' · ',
+                                style: textTheme.headline4!.copyWith(
+                                  fontSize: size.width * 0.06,
+                                ),
+                              ),
+                              Text(
+                                '${_movie.duration ~/ 3600}h '
+                                '${_movie.duration % 3600 ~/ 60} min',
+                                style: textTheme.headline4,
+                              ),
+                              Text(
+                                ' · ',
+                                style: textTheme.headline4!.copyWith(
+                                  fontSize: size.width * 0.06,
+                                ),
+                              ),
+                              Text(
+                                _movie.year.toString(),
+                                style: textTheme.headline4,
+                              ),
+                            ],
+                          ),
                         ),
                         Row(
                           children: [
-                            Text(
-                              movie.rating.toString(),
-                              style: textTheme.headline4,
-                            ),
-                            Icon(
-                              Icons.star,
-                              color: textTheme.headline4!.color,
-                            ),
-                            // dot in the middle of the text
-                            Text(
-                              '·',
-                              style: textTheme.headline4,
-                            ),
-                            Text(
-                              '${movie.duration ~/ 3600}h '
-                              '${movie.duration % 3600 ~/ 60} min',
-                              style: textTheme.headline4,
-                            ),
-                            Text(
-                              '·',
-                              style: textTheme.headline4,
-                            ),
-                            Text(
-                              movie.year.toString(),
-                              style: textTheme.headline4,
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            for (var genre in movie.genres) ...[
+                            for (var genre in _movie.genres) ...[
                               Padding(
                                 padding: EdgeInsets.only(
                                   right: size.width * 0.01,
@@ -156,84 +209,175 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen> {
                             ],
                           ],
                         ),
-                        Row(
-                          children: [
-                            GestureDetector(
-                              onTap: () async {
-                                // pause the trailer
-                                _controller.pause();
-                                var result =
-                                    await Navigator.of(context).pushNamed(
-                                  MovieRoute.movieView.route,
-                                );
-                                if (result != null) {
-                                  // resume the trailer
-                                  // _controller.play();
-                                  debugPrint('result: $result');
-                                }
-                              },
-                              child: DecoratedBox(
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            vertical: size.height * 0.04,
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () async {
+                                    // pause the trailer
+                                    _controller.pause();
+                                    var result =
+                                        await Navigator.of(context).pushNamed(
+                                      MovieRoute.movieView.route,
+                                    );
+                                    if (result != null) {
+                                      // resume the trailer
+                                      // _controller.play();
+                                      debugPrint('result: $result');
+                                    }
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                      vertical: size.height * 0.008,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(
+                                        15,
+                                      ),
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        // play button
+                                        Icon(
+                                          Icons.play_arrow_rounded,
+                                          color: Colors.white,
+                                          size: size.width * 0.09,
+                                        ),
+                                        Text(
+                                          _movieSettings.timeWatched <= 0
+                                              ? 'Watch movie'
+                                              : 'Continue watching',
+                                          style: textTheme.headline5!.copyWith(
+                                            fontSize: size.width * 0.05,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: size.width * 0.04,
+                                ),
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(
+                                      15,
+                                    ),
+                                    // grey border around the button
+                                    border: Border.all(
+                                      color: const Color.fromARGB(
+                                        255,
+                                        114,
+                                        109,
+                                        109,
+                                      ),
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: IconButton(
+                                    onPressed: () {},
+                                    iconSize: size.width * 0.07,
+                                    icon: const Icon(
+                                      Icons.file_download_outlined,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              DecoratedBox(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(
                                     15,
                                   ),
-                                  color: Theme.of(context).colorScheme.primary,
+                                  // grey border around the button
+                                  border: Border.all(
+                                    color: const Color.fromARGB(
+                                      255,
+                                      114,
+                                      109,
+                                      109,
+                                    ),
+                                    width: 2,
+                                  ),
                                 ),
-                                child: Row(
-                                  children: [
-                                    // play button
-                                    const Icon(
-                                      Icons.play_arrow,
-                                      color: Colors.white,
-                                    ),
-                                    Text(
-                                      movieSettings.timeWatched <= 0
-                                          ? 'Watch movie'
-                                          : 'Continue watching',
-                                      style: textTheme.headline5,
-                                    ),
-                                  ],
+                                child: IconButton(
+                                  iconSize: size.width * 0.07,
+                                  onPressed: () {
+                                    Share.share(
+                                      _movie.trailer,
+                                      subject: 'New Movie you should watch',
+                                    );
+                                  },
+                                  icon: const Icon(Icons.share_outlined),
                                 ),
                               ),
-                            ),
-                            IconButton(
-                              onPressed: () {
-                                debugPrint('download movie');
-                              },
-                              icon: const Icon(Icons.file_download_outlined),
-                            ),
-                            IconButton(
-                              onPressed: () {
-                                Share.share(
-                                  movie.trailer,
-                                  subject: 'New Movie you should watch',
-                                );
-                              },
-                              icon: const Icon(Icons.share),
-                            ),
-                          ],
-                        ),
-
-                        // actors list
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: [
-                              for (var actor in movie.actors) ...[
-                                ActorCard(
-                                  role: actor,
-                                  actor: ref.read(actorProvider).firstWhere(
-                                        (element) => element.name == actor.name,
-                                      ),
-                                )
-                              ]
                             ],
                           ),
                         ),
-
-                        Text(
-                          movie.description,
-                          style: textTheme.bodyText1,
+                        // actors list
+                        SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          scrollDirection: Axis.horizontal,
+                          child: Opacity(
+                            opacity:
+                                (!_secondAnimation && _animation.value <= 1)
+                                    ? _animation.value
+                                    : 1,
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width: (!_secondAnimation &&
+                                          _animation.value <= 1)
+                                      ? size.width *
+                                          0.6 *
+                                          (1 - _animation.value)
+                                      : 0,
+                                ),
+                                for (var actor in _movie.actors) ...[
+                                  ActorCard(
+                                    padding: size.height * 0.01,
+                                    role: actor,
+                                    actor: ref.read(actorProvider).firstWhere(
+                                          (element) =>
+                                              element.name == actor.name,
+                                        ),
+                                  ),
+                                  SizedBox(
+                                    width: size.width * 0.05,
+                                  ),
+                                ]
+                              ],
+                            ),
+                          ),
+                        ),
+                        Opacity(
+                          opacity: (!_secondAnimation)
+                              ? 0
+                              : (_animation.value <= 1)
+                                  ? _animation.value
+                                  : 1,
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                              top: size.height * 0.08 -
+                                  _animation.value * size.height * 0.04,
+                              bottom: size.height * 0.02,
+                            ),
+                            child: Text(
+                              _movie.description,
+                              style: textTheme.bodyText1!.copyWith(
+                                height: 1.8,
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -244,33 +388,39 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen> {
             Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: size.width * 0.05,
-                vertical: 0.05,
+                vertical: size.height * 0.02,
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   // backbutton
                   CustomIconButton(
-                    size: 10,
-                    icon: Icons.chevron_left,
+                    size: size.width * 0.04,
+                    alpha: 60,
+                    blurFactor: 0.01,
+                    iconScale: 2.2,
+                    icon: Icons.chevron_left_rounded,
                     onTap: () async {
                       var navigator = Navigator.of(context);
-                      await _onPageExit(movieSettings);
+                      await _onPageExit(_movieSettings);
                       navigator.pop();
                     },
                   ),
                   // likebutton
                   CustomIconButton(
-                    size: 10,
-                    icon: movieSettings.favorite
-                        ? Icons.favorite
-                        : Icons.favorite_border,
+                    size: size.width * 0.03,
+                    alpha: _movieSettings.favorite ? 100 : 70,
+                    blurFactor: 0.01,
+                    iconScale: 2.2,
+                    icon: _movieSettings.favorite
+                        ? Icons.favorite_rounded
+                        : Icons.favorite_border_rounded,
                     onTap: () {
                       ref
                           .read(movieSettingsProvider.notifier)
                           .updateMovieUserSettings(
-                            movieSettings.copyWith(
-                              favorite: !movieSettings.favorite,
+                            _movieSettings.copyWith(
+                              favorite: !_movieSettings.favorite,
                             ),
                           );
                     },

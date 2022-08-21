@@ -42,9 +42,9 @@ ThemeData getTheme() {
         color: Colors.white,
       ),
       bodyText1: TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w300,
-        color: Colors.white,
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
+        color: Color.fromARGB(255, 127, 129, 137),
       ),
     ),
   );

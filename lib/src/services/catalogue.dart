@@ -16,7 +16,8 @@ class MockedMovieCatalogueService extends StateNotifier<List<Movie>>
       const Movie(
         title: 'Fantastic Beasts: The Secrets of Dumbledore',
         description: 'Professor Albus Dumbledore must assign Newt Scamander '
-            'and his fellow partners...',
+            'and his fellow partners as Grindelwald begins to '
+            'lead an army to eliminate all Muggles.',
         bannerImage: 'assets/images/movies/secrets_dumbledore.jpg',
         descriptionImage: 'assets/images/movies/secrets_dumbledore_detail.jpg',
         trailer: 'https://www.youtube.com/watch?v=Y9dr2zw-TXQ',
@@ -35,8 +36,10 @@ class MockedMovieCatalogueService extends StateNotifier<List<Movie>>
             role: 'Albus Dumbledore',
             name: 'Jude Law',
           ),
+          const ActorInMovie(role: 'Grindelwald', name: 'Mads Mikkelsen'),
+          const ActorInMovie(role: 'Jacob Kowalski', name: 'Dan Fogler'),
         ],
-        rating: 8.0,
+        rating: 6.2,
         popular: false,
         upcoming: true,
       ),

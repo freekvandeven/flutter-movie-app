@@ -15,11 +15,19 @@ class MockedActorService extends StateNotifier<List<Actor>>
     state = [
       const Actor(
         name: 'Eddie Redmayne',
-        image: 'assets/images/actors',
+        image: 'assets/images/actors/eddie_redmayne.jpg',
       ),
       const Actor(
         name: 'Jude Law',
-        image: 'assets/images/actors',
+        image: 'assets/images/actors/jude_law.jpg',
+      ),
+      const Actor(
+        name: 'Dan Fogler',
+        image: 'assets/images/actors/dan_folger.jpg',
+      ),
+      const Actor(
+        name: 'Mads Mikkelsen',
+        image: 'assets/images/actors/mads_mikkelsen.jpg',
       ),
     ];
   }
