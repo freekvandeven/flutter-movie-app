@@ -30,7 +30,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               children: [
                 const PremiumCard(),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: size.width * 0.05,
+                    vertical: size.height * 0.02,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -115,6 +118,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ],
                   ),
                 ),
+                SizedBox(
+                  height: size.height * 0.05,
+                ),
               ],
             ),
           ),
@@ -128,17 +134,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // profile button
-                  CustomIconButton(
-                    icon: Icons.person,
-                    size: size.width * 0.02,
-                    onTap: () async {
-                      // TODO(freek): implement profile button
-                    },
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      image: const DecorationImage(
+                        image: AssetImage('assets/images/profile.jpg'),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    child: SizedBox(
+                      width: size.width * 0.12,
+                      height: size.width * 0.12,
+                    ),
                   ),
                   const Spacer(),
                   CustomIconButton(
-                    size: size.width * 0.02,
+                    size: size.width * 0.03,
+                    iconScale: 2.2,
                     onTap: () async {
                       // TODO(freek): add menu for movie provider filtering
                       var scaffold = ScaffoldMessenger.of(context);

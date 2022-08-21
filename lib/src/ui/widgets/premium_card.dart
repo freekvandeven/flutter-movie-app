@@ -80,12 +80,12 @@ class _PremiumCardState extends State<PremiumCard>
                             Text(
                               'Watch favorite movies '
                               '\nwithout any ads',
-                              style: Theme.of(context).textTheme.headline5,
+                              style: Theme.of(context).textTheme.headline3,
                             ),
                             const Spacer(),
                             // dismiss button
                             CustomIconButton(
-                              size: 10,
+                              size: size.width * 0.04,
                               onTap: () {
                                 setState(() {
                                   _watchFavoriteDismissed = true;
@@ -95,13 +95,11 @@ class _PremiumCardState extends State<PremiumCard>
                             ),
                           ],
                         ),
-                        SizedBox(
-                          height: size.height * 0.01,
-                        ),
+                        const Spacer(),
                         DecoratedBox(
                           decoration: BoxDecoration(
                             color: Theme.of(context).colorScheme.primary,
-                            borderRadius: BorderRadius.circular(15),
+                            borderRadius: BorderRadius.circular(10),
                           ),
                           child: Padding(
                             padding: EdgeInsets.symmetric(

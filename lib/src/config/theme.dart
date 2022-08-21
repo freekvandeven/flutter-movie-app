@@ -17,8 +17,8 @@ ThemeData getTheme() {
     ),
     textTheme: const TextTheme(
       headline1: TextStyle(
-        fontSize: 21,
-        fontWeight: FontWeight.w500,
+        fontSize: 22,
+        fontWeight: FontWeight.w600,
         color: Colors.white,
       ),
       headline3: TextStyle(
@@ -27,9 +27,9 @@ ThemeData getTheme() {
         color: Colors.white,
       ),
       headline4: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w400,
-        color: Colors.grey,
+        fontSize: 18,
+        fontWeight: FontWeight.w500,
+        color: Color.fromARGB(255, 117, 115, 115),
       ),
       headline5: TextStyle(
         fontSize: 16,
