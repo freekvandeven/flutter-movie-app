@@ -5,7 +5,7 @@ ThemeData getTheme() {
     colorScheme: const ColorScheme(
       brightness: Brightness.dark,
       primary: Color(0xFF10a125),
-      onPrimary: Color(0xFF10a125),
+      onPrimary: Color.fromARGB(255, 13, 103, 27),
       secondary: Color(0xFF395bf8),
       onSecondary: Color(0xFF395bf8),
       error: Colors.red,

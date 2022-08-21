@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:movie_viewing_app/src/models/movie_settings.dart';
+import 'package:movie_viewing_app/src/models/models.dart';
 import 'package:movie_viewing_app/src/movieroute.dart';
 import 'package:movie_viewing_app/src/providers.dart';
 import 'package:movie_viewing_app/src/ui/screens/base.dart';
@@ -15,6 +15,23 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  final PageController pageController = PageController(
+    initialPage: 1000,
+    viewportFraction: 0.5,
+  );
+  double _currentPage = 1000;
+  int previousPage = 999;
+
+  @override
+  void initState() {
+    super.initState();
+    pageController.addListener(() {
+      setState(() {
+        _currentPage = pageController.page!;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
@@ -48,20 +65,53 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ],
                   ),
                 ),
+                // horizontal list of movies that slide in
+                // only 3 movies are visible at a time
+                // rotate the cards to make them look like a carousel
+                // middle element needs to be on top of the others
+
                 SizedBox(
-                  width: size.width * 0.5,
                   height: size.height * 0.4,
-                  child: MovieCard(
-                    onTap: (context) {
-                      Navigator.of(context)
-                          .pushNamed(MovieRoute.movieDetail.route);
+                  child: PageView.builder(
+                    controller: pageController,
+                    itemBuilder: (context, index) {
+                      var movie = movies[index % movies.length];
+                      return AnimatedBuilder(
+                        animation: pageController,
+                        builder: (context, child) {
+                          var page = _currentPage;
+                          var value = index - page;
+                          var rotation = value * 0.25;
+                          return Transform.rotate(
+                            angle: rotation,
+                            child: child,
+                          );
+                        },
+                        child: MovieCard(
+                          movie: movie,
+                          settings: movieSettings.firstWhere(
+                            (element) => element.title == movie.title,
+                            orElse: () => MovieUserSettings.defaultSettings(
+                              movie.title,
+                            ),
+                          ),
+                          onTap: (context) {
+                            Navigator.of(context)
+                                .pushNamed(MovieRoute.movieDetail.route);
+                          },
+                        ),
+                      );
                     },
-                    movie: movies.first,
-                    settings: movieSettings.firstWhere(
-                      (element) => element.title == movies.first.title,
-                      orElse: () =>
-                          MovieUserSettings.defaultSettings(movies.first.title),
-                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: size.height * 0.05,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    movies.length,
+                    (index) => buildDot(index, movies),
                   ),
                 ),
                 Padding(
@@ -178,6 +228,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget buildDot(int index, List<Movie> movies) {
+    return Padding(
+      padding: EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.015),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 100),
+        height: MediaQuery.of(context).size.width * 0.015,
+        width: (index == _currentPage.toInt() % movies.length)
+            ? MediaQuery.of(context).size.width * 0.1
+            : MediaQuery.of(context).size.width * 0.015,
+        decoration: BoxDecoration(
+          color: (index == _currentPage.toInt() % movies.length)
+              ? Theme.of(context).colorScheme.primary
+              : Theme.of(context).colorScheme.onPrimary,
+          borderRadius: BorderRadius.circular(15),
+        ),
       ),
     );
   }
