@@ -8,6 +8,21 @@ import 'package:movie_viewing_app/src/ui/widgets/movie_card.dart';
 import 'package:movie_viewing_app/src/ui/widgets/premium_card.dart';
 import 'package:movie_viewing_app/src/ui/widgets/quick.dart';
 
+class SelectedCard {
+  const SelectedCard({
+    required this.movie,
+    required this.cardWidth,
+    required this.cardHeight,
+    required this.x,
+    required this.y,
+  });
+  final Movie movie;
+  final double cardWidth;
+  final double cardHeight;
+  final double x;
+  final double y;
+}
+
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
@@ -15,13 +30,19 @@ class HomeScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends ConsumerState<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen>
+    with SingleTickerProviderStateMixin {
   final PageController pageController = PageController(
     initialPage: 1000,
     viewportFraction: 0.5,
   );
   double _currentPage = 1000;
   int previousPage = 999;
+  SelectedCard? _selectedCard;
+
+  // card scale animation
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
@@ -31,6 +52,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         _currentPage = pageController.page!;
       });
     });
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
+    _scaleAnimation = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeOut,
+      ),
+    )..addListener(() {
+        // if the animation is finished route to the next screen
+        if (_scaleAnimation.isCompleted) {
+          _selectedCard = null;
+          Navigator.of(context).pushNamed(
+            MovieRoute.movieDetail.route,
+          );
+          _controller.reset();
+        }
+
+        setState(() {});
+      });
   }
 
   @override
@@ -73,6 +118,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       controller: pageController,
                       itemBuilder: (context, index) {
                         var movie = movies[index % movies.length];
+                        var key = GlobalKey();
                         return AnimatedBuilder(
                           animation: pageController,
                           builder: (context, child) {
@@ -85,11 +131,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             );
                           },
                           child: MovieCard(
+                            key: key,
                             rotatable: index == _currentPage &&
                                 ref
                                     .read(configServiceProvider)
                                     .rotateSliderCards,
-                            // TODO(freek): remove when rotatable is implemented
                             textAnimation: (index == _currentPage) ? 1.0 : 0.0,
                             movie: movie,
                             settings: movieSettings.firstWhere(
@@ -99,8 +145,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               ),
                             ),
                             onTap: (context) {
-                              Navigator.of(context)
-                                  .pushNamed(MovieRoute.movieDetail.route);
+                              _movieOnClick(key, movie);
                             },
                           ),
                         );
@@ -151,26 +196,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           children: movies
                               .where((element) => element.upcoming)
                               .take(8)
-                              .map(
-                                (movie) => MovieCard(
-                                  rotatable: false,
-                                  textAnimation: 1.0,
-                                  scale: 1.0,
-                                  onTap: (context) {
-                                    Navigator.of(context).pushNamed(
-                                      MovieRoute.movieDetail.route,
-                                    );
-                                  },
-                                  movie: movie,
-                                  settings: movieSettings.firstWhere(
-                                    (element) => element.title == movie.title,
-                                    orElse: () =>
-                                        MovieUserSettings.defaultSettings(
-                                      movie.title,
-                                    ),
-                                  ),
+                              .map((movie) {
+                            var key = GlobalKey();
+                            return MovieCard(
+                              rotatable: false,
+                              textAnimation: 1.0,
+                              scale: 1.0,
+                              key: key,
+                              onTap: (context) {
+                                _movieOnClick(key, movie);
+                              },
+                              movie: movie,
+                              settings: movieSettings.firstWhere(
+                                (element) => element.title == movie.title,
+                                orElse: () => MovieUserSettings.defaultSettings(
+                                  movie.title,
                                 ),
-                              ) // only first 8 items in the list are shown
+                              ),
+                            );
+                          }) // only first 8 items in the list are shown
                               .toList(),
                         ),
                       ],
@@ -257,10 +301,58 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
               ),
             ),
+
+            // draw a movie card once it is selected
+            if (_selectedCard != null)
+              // center the card around an X and Y
+
+              Positioned(
+                top:
+                    _selectedCard!.y - _scaleAnimation.value * _selectedCard!.y,
+                left:
+                    _selectedCard!.x - _scaleAnimation.value * _selectedCard!.x,
+                child: SizedBox(
+                  height: _selectedCard!.cardHeight +
+                      _scaleAnimation.value *
+                          (size.height - _selectedCard!.cardHeight),
+                  width: _selectedCard!.cardWidth +
+                      _scaleAnimation.value *
+                          (size.width - _selectedCard!.cardWidth),
+                  child: MovieCard(
+                    scale: (_selectedCard!.cardWidth +
+                            _scaleAnimation.value *
+                                (size.width - _selectedCard!.cardWidth)) /
+                        _selectedCard!.cardWidth,
+                    textAnimation: 1.0,
+                    movie: _selectedCard!.movie,
+                    settings: movieSettings.firstWhere(
+                      (element) => element.title == _selectedCard!.movie.title,
+                      orElse: () => MovieUserSettings.defaultSettings(
+                        _selectedCard!.movie.title,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
     );
+  }
+
+  void _movieOnClick(GlobalKey<State<StatefulWidget>> key, Movie movie) {
+    var box = key.currentContext!.findRenderObject()! as RenderBox;
+    var position = box.localToGlobal(Offset.zero);
+    setState(() {
+      _selectedCard = SelectedCard(
+        movie: movie,
+        cardWidth: box.size.width,
+        cardHeight: box.size.height,
+        x: position.dx,
+        y: position.dy,
+      );
+    });
+    _controller.forward();
   }
 
   Widget buildDot(int index, List<Movie> movies) {

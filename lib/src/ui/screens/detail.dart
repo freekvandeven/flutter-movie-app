@@ -41,8 +41,7 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen>
       CurvedAnimation(parent: _animationController, curve: Curves.decelerate),
     )..addListener(() {
         // once the animation is done, set the second animation to true
-        if (_animation.status == AnimationStatus.completed &&
-            !_secondAnimation) {
+        if (_animation.isCompleted && !_secondAnimation) {
           _secondAnimation = true;
           _animationController
             ..reset()
@@ -366,7 +365,7 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen>
                                   : 1,
                           child: Padding(
                             padding: EdgeInsets.only(
-                              top: size.height * 0.08 -
+                              top: size.height * 0.06 -
                                   _animation.value * size.height * 0.04,
                               bottom: size.height * 0.02,
                             ),
@@ -374,6 +373,8 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen>
                               _movie.description,
                               style: textTheme.bodyText1!.copyWith(
                                 height: 1.8,
+                                fontWeight: FontWeight.w600,
+                                fontSize: size.width * 0.035,
                               ),
                             ),
                           ),

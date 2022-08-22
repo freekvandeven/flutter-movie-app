@@ -67,7 +67,9 @@ class ActorCard extends StatelessWidget {
                   SizedBox(height: MediaQuery.of(context).size.height * 0.005),
                   Text(
                     role.role,
-                    style: Theme.of(context).textTheme.headline4,
+                    style: Theme.of(context).textTheme.headline4!.copyWith(
+                          fontSize: MediaQuery.of(context).size.width * 0.037,
+                        ),
                   ),
                 ],
               ),

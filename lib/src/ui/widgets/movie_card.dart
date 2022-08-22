@@ -69,7 +69,11 @@ class MovieCard extends ConsumerWidget {
                     children: [
                       Text(
                         (textAnimation > 0.2) ? movie.title : '',
-                        style: Theme.of(context).textTheme.headline5,
+                        style: Theme.of(context).textTheme.headline3!.copyWith(
+                              fontSize: size.width * 0.04 * scale,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white.withOpacity(textAnimation),
+                            ),
                       ),
                       Icon(
                         Icons.play_arrow_rounded,
@@ -177,10 +181,11 @@ class MovieCard extends ConsumerWidget {
                                         overflow: TextOverflow.ellipsis,
                                         style: Theme.of(context)
                                             .textTheme
-                                            .headline5!
+                                            .headline3!
                                             .copyWith(
                                               fontSize:
                                                   size.width * 0.04 * scale,
+                                              fontWeight: FontWeight.w700,
                                             ),
                                       ),
                                     ),
