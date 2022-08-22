@@ -14,6 +14,7 @@ class MovieCard extends ConsumerWidget {
     this.onTap,
     this.rotatable = false,
     this.scale = 1.0,
+    this.textAnimation = 0.0,
     Key? key,
   }) : super(key: key);
 
@@ -21,6 +22,7 @@ class MovieCard extends ConsumerWidget {
   final MovieUserSettings settings;
   final Function(BuildContext)? onTap;
   final bool rotatable;
+  final double textAnimation;
   final double scale;
 
   @override
@@ -66,7 +68,7 @@ class MovieCard extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        movie.title,
+                        (textAnimation > 0.2) ? movie.title : '',
                         style: Theme.of(context).textTheme.headline5,
                       ),
                       Icon(
@@ -136,61 +138,43 @@ class MovieCard extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  Container(
-                    clipBehavior: Clip.hardEdge,
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(20),
-                        bottomRight: Radius.circular(20),
-                      ),
-                      color: Colors.white.withOpacity(0.05),
-                    ),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(
-                        sigmaX: size.width * 0.015,
-                        sigmaY: size.width * 0.015,
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: size.width * 0.02 * scale,
-                          vertical: size.height * 0.015 * scale,
+                  if (textAnimation > 0.2) ...[
+                    Container(
+                      clipBehavior: Clip.hardEdge,
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(20),
+                          bottomRight: Radius.circular(20),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.only(
-                                bottom: size.height * 0.01 * scale,
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      movie.title,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headline5!
-                                          .copyWith(
-                                            fontSize: size.width * 0.04 * scale,
-                                          ),
-                                    ),
-                                  ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        // replace . with , in movie rating
-                                        movie.rating.toString().replaceAll(
-                                              RegExp(r'\.'),
-                                              ',',
-                                            ),
+                        color: Colors.white.withOpacity(0.05),
+                      ),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(
+                          sigmaX: size.width * 0.015,
+                          sigmaY: size.width * 0.015,
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: size.width * 0.02 * scale,
+                            vertical: size.height * 0.015 * scale,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  bottom: size.height * 0.01 * scale,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        movie.title,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
                                         style: Theme.of(context)
                                             .textTheme
                                             .headline5!
@@ -199,32 +183,53 @@ class MovieCard extends ConsumerWidget {
                                                   size.width * 0.04 * scale,
                                             ),
                                       ),
-                                      Icon(
-                                        Icons.star_rate_rounded,
-                                        color: Colors.yellow,
-                                        size: size.width * 0.05 * scale,
-                                      ),
-                                    ],
-                                  ),
-                                  // yellow star icon
+                                    ),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          // replace . with , in movie rating
+                                          movie.rating.toString().replaceAll(
+                                                RegExp(r'\.'),
+                                                ',',
+                                              ),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headline5!
+                                              .copyWith(
+                                                fontSize:
+                                                    size.width * 0.04 * scale,
+                                              ),
+                                        ),
+                                        Icon(
+                                          Icons.star_rate_rounded,
+                                          color: Colors.yellow,
+                                          size: size.width * 0.05 * scale,
+                                        ),
+                                      ],
+                                    ),
+                                    // yellow star icon
+                                  ],
+                                ),
+                              ),
+                              Wrap(
+                                alignment: WrapAlignment.start,
+                                spacing: size.width * 0.008,
+                                runSpacing: size.height * 0.005,
+                                children: [
+                                  for (var genre in movie.genres) ...[
+                                    GenreCard(title: genre),
+                                  ],
                                 ],
                               ),
-                            ),
-                            Wrap(
-                              alignment: WrapAlignment.start,
-                              spacing: size.width * 0.008,
-                              runSpacing: size.height * 0.005,
-                              children: [
-                                for (var genre in movie.genres) ...[
-                                  GenreCard(title: genre),
-                                ],
-                              ],
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                  ]
                 ],
               ),
       ),

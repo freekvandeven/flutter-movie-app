@@ -7,6 +7,7 @@ class ApplicationConfiguration {
     required this.autoHideVideoControls,
     required this.closedCaptionsEnabled,
     required this.highQualityVideo,
+    required this.rotateSliderCards,
     required this.movieVolume,
   });
 
@@ -16,6 +17,7 @@ class ApplicationConfiguration {
         autoHideVideoControls: json['autoHideVideoControls'],
         closedCaptionsEnabled: json['closedCaptionsEnabled'],
         highQualityVideo: json['highQualityVideo'],
+        rotateSliderCards: json['rotateSliderCards'],
         movieVolume: json['movieVolume'],
       );
 
@@ -25,6 +27,7 @@ class ApplicationConfiguration {
         autoHideVideoControls: true,
         closedCaptionsEnabled: false,
         highQualityVideo: true,
+        rotateSliderCards: true,
         movieVolume: 1.0,
       );
 
@@ -32,6 +35,7 @@ class ApplicationConfiguration {
   final bool autoHideVideoControls;
   final bool closedCaptionsEnabled;
   final bool highQualityVideo;
+  final bool rotateSliderCards;
   final double movieVolume;
 
   Map<String, dynamic> toJson() {
@@ -40,15 +44,17 @@ class ApplicationConfiguration {
       'autoHideVideoControls': autoHideVideoControls,
       'closedCaptionsEnabled': closedCaptionsEnabled,
       'highQualityVideo': highQualityVideo,
+      'rotateSliderCards': rotateSliderCards,
       'movieVolume': movieVolume,
     };
   }
 
-  ApplicationConfiguration copyWidth({
+  ApplicationConfiguration copyWith({
     bool? trailersEnabled,
     bool? autoHideVideoControls,
     bool? closedCaptionsEnabled,
     bool? highQualityVideo,
+    bool? rotateSliderCards,
     double? movieVolume,
   }) =>
       ApplicationConfiguration(
@@ -58,6 +64,7 @@ class ApplicationConfiguration {
         closedCaptionsEnabled:
             closedCaptionsEnabled ?? this.closedCaptionsEnabled,
         highQualityVideo: highQualityVideo ?? this.highQualityVideo,
+        rotateSliderCards: rotateSliderCards ?? this.rotateSliderCards,
         movieVolume: movieVolume ?? this.movieVolume,
       );
 }

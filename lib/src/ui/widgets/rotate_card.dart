@@ -16,7 +16,6 @@ class _RotateCardWidgetState extends State<RotateCardWidget> {
   @override
   void initState() {
     super.initState();
-    motionSensors.orientationUpdateInterval = 10;
     motionSensors.isOrientationAvailable().then((available) {
       if (available) {
         motionSensors.orientation.listen((OrientationEvent event) {
@@ -32,34 +31,19 @@ class _RotateCardWidgetState extends State<RotateCardWidget> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Transform(
-    //   transform: Matrix4(
-    //     1,
-    //     0,
-    //     0,
-    //     0,
-    //     0,
-    //     1,
-    //     0,
-    //     0,
-    //     0,
-    //     0,
-    //     1,
-    //     0,
-    //     0,
-    //     0,
-    //     0,
-    //     1,
-    //   )
-    //     ..rotateY(-_orientation.z)
-    //     ..rotateX(-(_orientation.x - _baseOrientation.x)),
-    //   alignment: FractionalOffset.center,
-    //   child: Text(
-    //     'Thomb Rider',
-    //     style: Theme.of(context).textTheme.headline3,
-    //   ),
-    // ),
-    return widget.child;
+    return Transform(
+      transform: Matrix4.identity()
+        ..rotateY(-_orientation.z)
+        // move the X slightly up on the opposite axis of the y rotation
+        ..rotateZ(-_orientation.z / 16),
+      alignment: FractionalOffset.center,
+      child: widget.child,
+    );
   }
 }

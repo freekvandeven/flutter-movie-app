@@ -126,7 +126,7 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
                           size: iconSize,
                           onTap: () {
                             var config = ref.read(configServiceProvider);
-                            var newConfig = config.copyWidth(
+                            var newConfig = config.copyWith(
                               autoHideVideoControls:
                                   !config.autoHideVideoControls,
                             );
@@ -203,7 +203,7 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
                                   ref
                                       .read(configServiceProvider.notifier)
                                       .saveApplicationSettings(
-                                        config.copyWidth(
+                                        config.copyWith(
                                           highQualityVideo:
                                               !config.highQualityVideo,
                                         ),
@@ -229,7 +229,7 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
                                     ref
                                         .read(configServiceProvider.notifier)
                                         .saveApplicationSettings(
-                                          config.copyWidth(
+                                          config.copyWith(
                                             closedCaptionsEnabled:
                                                 !config.closedCaptionsEnabled,
                                           ),

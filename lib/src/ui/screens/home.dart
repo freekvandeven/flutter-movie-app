@@ -65,11 +65,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ],
                   ),
                 ),
-                // horizontal list of movies that slide in
-                // only 3 movies are visible at a time
-                // rotate the cards to make them look like a carousel
-                // middle element needs to be on top of the others
-
                 SizedBox(
                   height: size.height * 0.4,
                   child: PageView.builder(
@@ -88,6 +83,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           );
                         },
                         child: MovieCard(
+                          rotatable: index == _currentPage &&
+                              ref.read(configServiceProvider).rotateSliderCards,
+                          // TODO(freek): remove when rotatable is implemented
+                          textAnimation: (index == _currentPage) ? 1.0 : 0.0,
                           movie: movie,
                           settings: movieSettings.firstWhere(
                             (element) => element.title == movie.title,
@@ -147,6 +146,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             .take(8)
                             .map(
                               (movie) => MovieCard(
+                                rotatable: false,
+                                textAnimation: 1.0,
                                 scale: 1.0,
                                 onTap: (context) {
                                   Navigator.of(context).pushNamed(
@@ -184,17 +185,38 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      image: const DecorationImage(
-                        image: AssetImage('assets/images/profile.jpg'),
-                        fit: BoxFit.cover,
+                  GestureDetector(
+                    onTap: () async {
+                      // update rotate card setting
+                      var settings = ref.read(configServiceProvider);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Rotate card '
+                            '${!settings.rotateSliderCards ? 'on' : 'off'}',
+                          ),
+                        ),
+                      );
+                      await ref
+                          .read(configServiceProvider.notifier)
+                          .saveApplicationSettings(
+                            settings.copyWith(
+                              rotateSliderCards: !settings.rotateSliderCards,
+                            ),
+                          );
+                    },
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        image: const DecorationImage(
+                          image: AssetImage('assets/images/profile.jpg'),
+                          fit: BoxFit.cover,
+                        ),
                       ),
-                    ),
-                    child: SizedBox(
-                      width: size.width * 0.12,
-                      height: size.width * 0.12,
+                      child: SizedBox(
+                        width: size.width * 0.12,
+                        height: size.width * 0.12,
+                      ),
                     ),
                   ),
                   const Spacer(),
@@ -208,7 +230,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       await ref
                           .read(configServiceProvider.notifier)
                           .saveApplicationSettings(
-                            currentSettings.copyWidth(
+                            currentSettings.copyWith(
                               trailersEnabled: !currentSettings.trailersEnabled,
                             ),
                           );
