@@ -41,6 +41,13 @@ flutter:
     - assets/images/icons/
     - assets/images/actors/
     - assets/images/movies/
+    - assets/fonts/
+  fonts:
+    - family: Apercu
+      fonts:
+        - asset: assets/fonts/apercu_regular_pro.otf
+        - asset: assets/fonts/apercu_medium_pro.otf
+        - asset: assets/fonts/apercu_bold_pro.otf
 
 flutter_icons:
   android: "launcher_icon"
