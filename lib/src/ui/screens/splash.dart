@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:movie_viewing_app/src/movieroute.dart';
 import 'package:movie_viewing_app/src/providers.dart';
 import 'package:movie_viewing_app/src/ui/screens/base.dart';
+import 'package:rive/rive.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -19,7 +20,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     ref.read(movieSettingsProvider.notifier).fetchMovieUserSettings();
     ref.read(configServiceProvider.notifier).loadApplicationSettings();
     // route to home screen after some time
-    Future.delayed(const Duration(milliseconds: 2000), () {
+    Future.delayed(const Duration(milliseconds: 3000), () {
       if (mounted) {
         Navigator.of(context).pushReplacementNamed(MovieRoute.homeScreen.route);
         // if a movie was selected route to the movie detail screen
@@ -37,9 +38,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   Widget build(BuildContext context) {
     return const BaseScreen(
       child: Center(
-        child: Image(
-          image: AssetImage('assets/images/icons/logo.jpg'),
-        ),
+        child: RiveAnimation.asset('assets/loading_animation.riv'),
       ),
     );
   }

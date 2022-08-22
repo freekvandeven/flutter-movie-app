@@ -24,6 +24,7 @@ dependencies:
   youtube_player_flutter: ^8.1.0
   video_player: ^2.4.6
   wakelock: ^0.6.2
+  rive: ^0.9.1
 
 dev_dependencies:
   flutter_test:
