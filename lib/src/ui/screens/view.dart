@@ -214,7 +214,6 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
                               Padding(
                                 padding: EdgeInsets.only(
                                   left: size.width * 0.01,
-                                  right: size.width * 0.02,
                                 ),
                                 child: CustomIconButton(
                                   size: iconSize,
@@ -236,6 +235,20 @@ class _MovieViewScreenState extends ConsumerState<MovieViewScreen> {
                                         );
                                   },
                                   icon: Icons.closed_caption_outlined,
+                                ),
+                              ),
+
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  left: size.width * 0.01,
+                                  right: size.width * 0.02,
+                                ),
+                                child: CustomIconButton(
+                                  onTap: () {
+                                    // open a volume bar above this element
+                                  },
+                                  icon: Icons.volume_up_rounded,
+                                  size: iconSize,
                                 ),
                               ),
                               // video progress bar
