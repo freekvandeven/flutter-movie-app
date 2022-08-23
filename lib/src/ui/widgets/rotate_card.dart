@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:motion_sensors/motion_sensors.dart';
 import 'package:vector_math/vector_math_64.dart' hide Colors;
@@ -13,12 +15,15 @@ class RotateCardWidget extends StatefulWidget {
 class _RotateCardWidgetState extends State<RotateCardWidget> {
   final Vector3 _orientation = Vector3.zero();
   final Vector3 _baseOrientation = Vector3.zero();
+  StreamSubscription<OrientationEvent>? _orientationSubscription;
+
   @override
   void initState() {
     super.initState();
     motionSensors.isOrientationAvailable().then((available) {
       if (available) {
-        motionSensors.orientation.listen((OrientationEvent event) {
+        _orientationSubscription =
+            motionSensors.orientation.listen((OrientationEvent event) {
           if (_baseOrientation == Vector3.zero()) {
             _baseOrientation.setValues(event.yaw, event.pitch, event.roll);
           }
@@ -32,6 +37,8 @@ class _RotateCardWidgetState extends State<RotateCardWidget> {
 
   @override
   void dispose() {
+    // dispose the controller when the widget is disposed
+    _orientationSubscription?.cancel();
     super.dispose();
   }
 

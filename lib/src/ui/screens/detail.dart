@@ -250,7 +250,9 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen>
                                           size: size.width * 0.09,
                                         ),
                                         Text(
-                                          _movieSettings.timeWatched <= 0
+                                          _movie.movieStarted(
+                                            _movieSettings.timeWatched,
+                                          )
                                               ? 'Watch movie'
                                               : 'Continue watching',
                                           style: textTheme.headline5!.copyWith(
