@@ -1,0 +1,10 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Movie Viewing App
+Upstream-Contact: Freek van de Ven <freek@freekvandeven.nl>
+Source: https://freekvandeven.nl/
+
+# Sample paragraph, commented out:
+#
+# Files: src/*
+# Copyright: $YEAR $NAME <$CONTACT>
+# License: ...
