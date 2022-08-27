@@ -9,11 +9,34 @@ import 'package:movie_viewing_app/src/ui/screens/home.dart';
 import 'package:movie_viewing_app/src/ui/screens/splash.dart';
 import 'package:movie_viewing_app/src/ui/screens/view.dart';
 
-Map<String, WidgetBuilder> getRoutes(RouteSettings settings) {
-  return {
-    MovieRoute.splashScreen.route: (context) => const SplashScreen(),
-    MovieRoute.homeScreen.route: (context) => const HomeScreen(),
-    MovieRoute.movieDetail.route: (context) => const MovieDetailScreen(),
-    MovieRoute.movieView.route: (context) => const MovieViewScreen(),
-  };
+class AnimatedPageDefinition {
+  const AnimatedPageDefinition({
+    required this.page,
+    this.transition,
+    this.duration,
+  });
+  final WidgetBuilder page;
+  final RouteTransitionsBuilder? transition;
+  final Duration? duration;
 }
+
+Map<String, AnimatedPageDefinition> getRoutes(RouteSettings settings) => {
+      MovieRoute.splashScreen.route: AnimatedPageDefinition(
+        page: (context) => const SplashScreen(),
+      ),
+      MovieRoute.homeScreen.route: AnimatedPageDefinition(
+        page: (context) => const HomeScreen(),
+        transition: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(
+          opacity: animation,
+          child: child,
+        ),
+        duration: const Duration(milliseconds: 1500),
+      ),
+      MovieRoute.movieDetail.route: AnimatedPageDefinition(
+        page: (context) => const MovieDetailScreen(),
+      ),
+      MovieRoute.movieView.route: AnimatedPageDefinition(
+        page: (context) => const MovieViewScreen(),
+      ),
+    };

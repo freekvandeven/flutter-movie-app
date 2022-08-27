@@ -58,7 +58,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     });
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 800),
     );
     _scaleAnimation = Tween<double>(
       begin: 0,
@@ -70,7 +70,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       ),
     )..addListener(() {
         // if the animation is finished route to the next screen
-        if (_scaleAnimation.isCompleted) {
+        if (_scaleAnimation.value >= 1 && _selectedCard != null) {
           _selectedCard = null;
           Navigator.of(context).pushNamed(
             MovieRoute.movieDetail.route,

@@ -19,7 +19,15 @@ class MovieViewingAppApp extends StatelessWidget {
         var routes = getRoutes(settings);
         if (routes.containsKey(settings.name)) {
           return PageRouteBuilder(
-            pageBuilder: (_, __, ___) => routes[settings.name]!(context),
+            pageBuilder: (_, __, ___) => routes[settings.name]!.page(context),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) =>
+                    routes[settings.name]!
+                        .transition
+                        ?.call(context, animation, secondaryAnimation, child) ??
+                    child,
+            transitionDuration: routes[settings.name]!.duration ??
+                const Duration(milliseconds: 500),
             settings: settings,
           );
         } else {

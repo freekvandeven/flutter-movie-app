@@ -24,7 +24,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     ref.read(movieSettingsProvider.notifier).fetchMovieUserSettings();
     ref.read(configServiceProvider.notifier).loadApplicationSettings();
     // route to home screen after some time
-    Future.delayed(const Duration(milliseconds: 500), () {
+    Future.delayed(const Duration(milliseconds: 2000), () {
       if (mounted) {
         Navigator.of(context).pushReplacementNamed(MovieRoute.homeScreen.route);
         // if a movie was selected route to the movie detail screen
