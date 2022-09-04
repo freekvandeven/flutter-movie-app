@@ -4,7 +4,7 @@
 
 import 'dart:convert';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:movie_viewing_app/src/models/movie_settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

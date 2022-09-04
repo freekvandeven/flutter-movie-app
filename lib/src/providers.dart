@@ -2,11 +2,11 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:movie_viewing_app/src/models/models.dart';
 import 'package:movie_viewing_app/src/services/services.dart';
 
-export 'package:flutter_riverpod/flutter_riverpod.dart';
+export 'package:hooks_riverpod/hooks_riverpod.dart';
 
 final movieCatalogueProvider =
     StateNotifierProvider<MovieCatalogueService, List<Movie>>(

@@ -5,6 +5,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:movie_viewing_app/src/models/models.dart';
 import 'package:movie_viewing_app/src/movieroute.dart';
 import 'package:movie_viewing_app/src/providers.dart';
@@ -15,46 +16,52 @@ import 'package:movie_viewing_app/src/ui/widgets/icon_button.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-class MovieDetailScreen extends ConsumerStatefulWidget {
+class MovieDetailScreen extends StatefulHookConsumerWidget {
   const MovieDetailScreen({Key? key}) : super(key: key);
 
   @override
   ConsumerState<MovieDetailScreen> createState() => _MovieDetailScreenState();
 }
 
-class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen>
-    with SingleTickerProviderStateMixin {
+class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen> {
   late Movie _movie;
   late MovieUserSettings _movieSettings;
   bool _playerEnabled = true;
   bool _isPlaying = false;
   late YoutubePlayerController _controller;
-  late final AnimationController _animationController;
-  late final Animation<double> _animation;
   bool _secondAnimation = false;
 
   @override
   void initState() {
     super.initState();
     _playerEnabled = ref.read(configServiceProvider).trailersEnabled;
-    _animationController = AnimationController(
-      vsync: this,
+  }
+
+  Future<void> _onPageExit(MovieUserSettings settings) async {
+    await ref
+        .read(movieSettingsProvider.notifier)
+        .updateMovieUserSettings(settings.copyWith(selected: false));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var animationController = useAnimationController(
       duration: const Duration(milliseconds: 900),
     );
-    _animation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.decelerate),
-    )..addListener(() {
-        // once the animation is done, set the second animation to true
-        if (_animation.isCompleted && !_secondAnimation) {
-          _secondAnimation = true;
-          _animationController
-            ..reset()
-            ..forward();
-        }
-        setState(() {});
-      });
+    var animation = useAnimation(
+      Tween<double>(begin: 0, end: 1).animate(
+        CurvedAnimation(parent: animationController, curve: Curves.decelerate),
+      ),
+    );
+    animationController.addListener(() {
+      if (animationController.isCompleted && !_secondAnimation) {
+        _secondAnimation = true;
+        animationController
+          ..reset()
+          ..forward();
+      }
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _animationController.forward();
       _controller = YoutubePlayerController(
         initialVideoId: YoutubePlayer.convertUrlToId(_movie.trailer) ?? '',
         flags: const YoutubePlayerFlags(
@@ -67,23 +74,8 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen>
         ),
       );
     });
-  }
+    animationController.forward();
 
-  @override
-  void dispose() {
-    _animationController.dispose();
-    _controller.dispose();
-    super.dispose();
-  }
-
-  Future<void> _onPageExit(MovieUserSettings settings) async {
-    await ref
-        .read(movieSettingsProvider.notifier)
-        .updateMovieUserSettings(settings.copyWith(selected: false));
-  }
-
-  @override
-  Widget build(BuildContext context) {
     var settings =
         ref.watch(movieSettingsProvider).where((element) => element.selected);
     if (settings.isEmpty) {
@@ -94,7 +86,6 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen>
     _movie = ref
         .read(movieCatalogueProvider)
         .firstWhere((element) => element.title == _movieSettings.title);
-
     var size = MediaQuery.of(context).size;
     var textTheme = Theme.of(context).textTheme;
 
@@ -332,18 +323,14 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen>
                           physics: const BouncingScrollPhysics(),
                           scrollDirection: Axis.horizontal,
                           child: Opacity(
-                            opacity:
-                                (!_secondAnimation && _animation.value <= 1)
-                                    ? _animation.value
-                                    : 1,
+                            opacity: (!_secondAnimation && animation <= 1)
+                                ? animation
+                                : 1,
                             child: Row(
                               children: [
                                 SizedBox(
-                                  width: (!_secondAnimation &&
-                                          _animation.value <= 1)
-                                      ? size.width *
-                                          0.6 *
-                                          (1 - _animation.value)
+                                  width: (!_secondAnimation && animation <= 1)
+                                      ? size.width * 0.6 * (1 - animation)
                                       : 0,
                                 ),
                                 for (var actor in _movie.actors) ...[
@@ -366,13 +353,13 @@ class _MovieDetailScreenState extends ConsumerState<MovieDetailScreen>
                         Opacity(
                           opacity: (!_secondAnimation)
                               ? 0
-                              : (_animation.value <= 1)
-                                  ? _animation.value
+                              : (animation <= 1)
+                                  ? animation
                                   : 1,
                           child: Padding(
                             padding: EdgeInsets.only(
                               top: size.height * 0.06 -
-                                  _animation.value * size.height * 0.04,
+                                  animation * size.height * 0.04,
                               bottom: size.height * 0.02,
                             ),
                             child: Text(

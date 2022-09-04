@@ -29,6 +29,7 @@ dependencies:
   video_player: ^2.4.6
   wakelock: ^0.6.2
   rive: ^0.9.1
+  flutter_hooks: ^0.18.5+1
 
 dev_dependencies:
   flutter_test:
